@@ -137,6 +137,13 @@ public class AvatarCustomizer : MonoBehaviour
 
         SkinnedMeshRenderer skm = data[part][fullPartName];
 
+        // Clear existing mesh on this category (if any)
+        if (smr.ContainsKey(part))
+        {
+            smr[part].sharedMesh = null;
+            smr[part].materials = new Material[0];
+        }
+
         // Remap bones from the source part to the target's bones.
         List<Transform> bones = new List<Transform>();
         foreach (var bone in skm.bones)
