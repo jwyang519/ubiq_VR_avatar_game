@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.XR;
+using Ubiq.Avatars;
 
 public class VRMovementController : MonoBehaviour
 {
@@ -18,17 +18,28 @@ public class VRMovementController : MonoBehaviour
         float distanceMoved = Vector3.Distance(xrRig.position, lastPosition);
         float speed = distanceMoved / Time.deltaTime;
 
-        // Update the 'Speed' parameter on the avatar's Animator.
-        if (AvatarSys._instance != null && AvatarSys._instance.CurrentAnimator != null)
+        // Find the AvatarManager in the scene
+        AvatarManager avatarManager = FindObjectOfType<AvatarManager>();
+        if (avatarManager != null && avatarManager.LocalAvatar != null)
         {
-            AvatarSys._instance.CurrentAnimator.SetFloat("Speed", speed);
+            // Get the Animator from the local avatar
+            Animator animator = avatarManager.LocalAvatar.GetComponent<Animator>();
+            if (animator != null)
+            {
+                // Update the 'Speed' parameter on the avatar's Animator
+                animator.SetFloat("Speed", speed);
+            }
+            else
+            {
+                Debug.LogWarning("Local avatar has no Animator component!");
+            }
         }
         else
         {
-            Debug.LogWarning("AvatarSys or its CurrentAnimator is not available yet.");
+            Debug.LogWarning("Local avatar or AvatarManager not found or not yet spawned.");
         }
 
-        // Save the current position for the next frame.
+        // Store the current position for the next frame.
         lastPosition = xrRig.position;
     }
 }
