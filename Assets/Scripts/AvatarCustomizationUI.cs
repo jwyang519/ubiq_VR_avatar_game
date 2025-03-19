@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Ubiq.Avatars; // for Avatar, if needed
 
 public class AvatarCustomizationUI : MonoBehaviour
 {
     [Header("Category Settings")]
-    [Tooltip("Enter the category name exactly as used in AvatarSys (e.g., \"Hair\", \"Top\", \"Bottom\", \"Shoes\", \"Face\").")]
+    [Tooltip("Enter the category name exactly as used in your AvatarCustomizer (e.g., \"Hair\", \"Top\", \"Bottom\", \"Shoes\", \"Face\").")]
     public string category;
 
     [Header("UI References")]
@@ -17,12 +18,35 @@ public class AvatarCustomizationUI : MonoBehaviour
 
     IEnumerator Start()
     {
-        // Wait one frame to allow AvatarSys to finish initializing.
+        // Wait one frame to allow the Avatar Manager to spawn the local avatar.
         yield return null;
 
-        // Query available variants from AvatarSys.
+        // Try to locate the Avatar Manager in the scene.
+        AvatarManager avatarManager = FindObjectOfType<AvatarManager>();
+        if (avatarManager == null)
+        {
+            Debug.LogWarning("AvatarManager not found in the scene.");
+            yield break;
+        }
+
+        // Ensure the local avatar has been spawned.
+        if (avatarManager.LocalAvatar == null)
+        {
+            Debug.LogWarning("Local avatar not yet spawned by AvatarManager.");
+            yield break;
+        }
+
+        // Get the AvatarCustomizer from the local avatar.
+        AvatarCustomizer customizer = avatarManager.LocalAvatar.GetComponent<AvatarCustomizer>();
+        if (customizer == null)
+        {
+            Debug.LogWarning("AvatarCustomizer component not found on the local avatar.");
+            yield break;
+        }
+
+        // Query available variants from the AvatarCustomizer.
         Dictionary<string, SkinnedMeshRenderer> parts;
-        if (AvatarSys._instance != null && AvatarSys._instance.GetPartsForCategory(category, out parts))
+        if (customizer.GetPartsForCategory(category, out parts))
         {
             Debug.Log("Found " + parts.Count + " parts for category: " + category);
             foreach (KeyValuePair<string, SkinnedMeshRenderer> kvp in parts)
@@ -44,7 +68,8 @@ public class AvatarCustomizationUI : MonoBehaviour
                     Debug.LogWarning("Button prefab is missing a Text component.");
                 }
 
-                // Extract the variant number (assuming key format "Category_Variant")
+                // Assuming the key is in the format "Category_Variant" (e.g., "Hair_1"),
+                // extract the variant portion.
                 string variantNumber = kvp.Key.Substring(category.Length + 1);
                 string part = category;
                 string variant = variantNumber;
@@ -55,19 +80,18 @@ public class AvatarCustomizationUI : MonoBehaviour
 
                 newButton.onClick.AddListener(() =>
                 {
-                    // 1. Update the local avatar.
-                    AvatarSys._instance.OnChangePart(capturedPart, capturedVariant);
+                    // 1. Update the local avatar's customization.
+                    customizer.OnChangePart(capturedPart, capturedVariant);
 
-                    // 2. Get the network sync component from the current avatar.
-                    AvatarNetworkSync sync = AvatarSys._instance.CurrentAvatar.GetComponent<AvatarNetworkSync>();
+                    // 2. If you want to broadcast changes, check for the AvatarNetworkSync component.
+                    AvatarNetworkSync sync = avatarManager.LocalAvatar.GetComponent<AvatarNetworkSync>();
                     if (sync != null)
                     {
-                        // Broadcast the change over the network.
                         sync.SendAvatarChange(capturedPart, capturedVariant);
                     }
                     else
                     {
-                        Debug.LogWarning("AvatarNetworkSync component is missing on the current avatar!");
+                        Debug.LogWarning("AvatarNetworkSync component is missing on the local avatar!");
                     }
                 });
             }
