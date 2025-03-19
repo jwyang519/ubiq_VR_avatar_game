@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class AvatarCustomizer : MonoBehaviour
 {
-    // This script should be attached to the NetworkedAvatar prefab.
-    // It uses a hidden model repository (modelPrefab) to collect body-part variants,
-    // and then lets you change parts via the OnChangePart method.
-
     [Header("Customization Settings")]
     [Tooltip("Hidden model repository containing all available parts (must have a 'Parts' folder).")]
     [SerializeField] private GameObject modelPrefab;
@@ -18,7 +14,8 @@ public class AvatarCustomizer : MonoBehaviour
     private Transform[] hips;
     private Dictionary<string, SkinnedMeshRenderer> smr = new Dictionary<string, SkinnedMeshRenderer>();
 
-    // Default parts selection: { category, variant }
+    // Default parts selection: { category, defaultVariant }
+    // Ensure these match your repository's naming exactly.
     private string[,] avatarStr = new string[,] {
         { "Hair", "1" },
         { "Top", "1" },
@@ -27,13 +24,11 @@ public class AvatarCustomizer : MonoBehaviour
         { "Face", "A1" }
     };
 
-    // For convenience, expose the current avatar (this GameObject) and its Animator.
     public GameObject CurrentAvatar => gameObject;
     public Animator CurrentAnimator { get; private set; }
 
     void Awake()
     {
-        // Get the Animator component attached to the spawned avatar.
         CurrentAnimator = GetComponent<Animator>();
         if (CurrentAnimator == null)
         {
@@ -43,7 +38,7 @@ public class AvatarCustomizer : MonoBehaviour
 
     void Start()
     {
-        // Instantiate the hidden model repository as a child of this avatar.
+        // Instantiate the hidden model repository as a child.
         if (modelPrefab == null)
         {
             Debug.LogError("Please assign the modelPrefab repository for customization parts!");
@@ -51,19 +46,23 @@ public class AvatarCustomizer : MonoBehaviour
         }
         GameObject sourceGO = Instantiate(modelPrefab, transform.position, Quaternion.identity, transform);
         sourceTrans = sourceGO.transform;
-        sourceGO.SetActive(false); // hide the repository
+        sourceGO.SetActive(false); // hide repository
 
-        // Get all transforms in the avatar (for remapping bones).
+        // Get bones from the avatar for remapping.
         hips = GetComponentsInChildren<Transform>();
 
-        // Collect parts data from the hidden repository into the data and smr dictionaries.
+        // Collect part data.
         SaveData(sourceTrans, data, gameObject, smr);
 
-        // Initialize the avatar with the default parts.
+        // Optionally, you might want to clear any pre-existing parts.
+        // (If your target already has parts that you want to replace.)
+        // Here we leave them in place so that ChangeMesh will override them.
+
+        // Apply defaults.
         InitAvatar();
     }
 
-    // Scans the hidden repository for parts and sets up the target's parts structure.
+    // Scans the hidden repository for parts and sets up the data dictionaries.
     void SaveData(Transform sourceTrans, Dictionary<string, Dictionary<string, SkinnedMeshRenderer>> data, GameObject target, Dictionary<string, SkinnedMeshRenderer> smr)
     {
         data.Clear();
@@ -72,7 +71,6 @@ public class AvatarCustomizer : MonoBehaviour
         if (sourceTrans == null)
             return;
 
-        // Look for the "Parts" folder in the source repository.
         Transform partsParent = sourceTrans.Find("Parts");
         if (partsParent == null)
         {
@@ -80,17 +78,17 @@ public class AvatarCustomizer : MonoBehaviour
             return;
         }
 
-        // Iterate through each category (e.g., Hair, Top, etc.)
         foreach (Transform category in partsParent)
         {
+            Debug.Log("Found category in repository: " + category.name);
             if (!data.ContainsKey(category.name))
                 data.Add(category.name, new Dictionary<string, SkinnedMeshRenderer>());
 
-            // Find (or create) the corresponding category folder in the target avatar.
+            // Find (or create) the corresponding category folder in the target.
             Transform targetPartsParent = target.transform.Find("Parts");
             if (targetPartsParent == null)
             {
-                Debug.LogError("No 'Parts' folder found in target model!");
+                Debug.LogError("No 'Parts' folder found in target model! Please create one in your avatar prefab.");
                 continue;
             }
             Transform targetCategory = targetPartsParent.Find(category.name);
@@ -101,19 +99,17 @@ public class AvatarCustomizer : MonoBehaviour
                 targetCategory = newCategory.transform;
             }
 
-            // For each part in the category (e.g., Hair_1, Hair_2, etc.)
             foreach (Transform part in category)
             {
                 SkinnedMeshRenderer partSMR = part.GetComponent<SkinnedMeshRenderer>();
                 if (partSMR != null)
                 {
-                    // Use the naming convention: "Category_Variant" (e.g., "Hair_1").
+                    // Expecting names like "Hair_1", "Hair_2", etc.
                     data[category.name].Add(part.name, partSMR);
                     Debug.Log("Collected part: " + part.name + " under category: " + category.name);
                 }
             }
 
-            // Create an empty SkinnedMeshRenderer on the target for this category if not already created.
             if (!smr.ContainsKey(category.name))
             {
                 GameObject partGo = new GameObject(category.name);
@@ -123,8 +119,7 @@ public class AvatarCustomizer : MonoBehaviour
         }
     }
 
-    // Changes the target's mesh for a given category using the specified variant number.
-    // 'part' is the category (e.g., "Hair") and 'num' is the variant (e.g., "1" for "Hair_1").
+    // Changes the mesh for the given category.
     void ChangeMesh(string part, string num, Dictionary<string, Dictionary<string, SkinnedMeshRenderer>> data, Transform[] hips, Dictionary<string, SkinnedMeshRenderer> smr, string[,] str)
     {
         string fullPartName = part + "_" + num;
@@ -137,14 +132,14 @@ public class AvatarCustomizer : MonoBehaviour
 
         SkinnedMeshRenderer skm = data[part][fullPartName];
 
-        // Clear existing mesh on this category (if any)
+        // Clear any previously applied mesh on this category.
         if (smr.ContainsKey(part))
         {
             smr[part].sharedMesh = null;
             smr[part].materials = new Material[0];
         }
 
-        // Remap bones from the source part to the target's bones.
+        // Remap bones.
         List<Transform> bones = new List<Transform>();
         foreach (var bone in skm.bones)
         {
@@ -157,7 +152,6 @@ public class AvatarCustomizer : MonoBehaviour
                 }
             }
         }
-        // Replace the target's part with the new mesh, materials, and bones.
         smr[part].bones = bones.ToArray();
         smr[part].materials = skm.materials;
         smr[part].sharedMesh = skm.sharedMesh;
@@ -165,7 +159,6 @@ public class AvatarCustomizer : MonoBehaviour
         SaveDataForPart(part, num, str);
     }
 
-    // Updates the record for the given part in the default parts selection.
     void SaveDataForPart(string part, string num, string[,] str)
     {
         int length = str.GetLength(0);
@@ -178,7 +171,7 @@ public class AvatarCustomizer : MonoBehaviour
         }
     }
 
-    // Initializes the avatar using the default parts specified in avatarStr.
+    // Automatically applies the default parts.
     void InitAvatar()
     {
         int length = avatarStr.GetLength(0);
@@ -188,14 +181,14 @@ public class AvatarCustomizer : MonoBehaviour
         }
     }
 
-    // Public method for UI to change a part on the fly.
+    // Called by the UI to change a part.
     public void OnChangePart(string part, string num)
     {
         ChangeMesh(part, num, data, hips, smr, avatarStr);
         Debug.Log($"Changed {part} to variant {num}");
     }
 
-    // Public method to expose available variants for a given category.
+    // Exposes available variants for a category.
     public bool GetPartsForCategory(string category, out Dictionary<string, SkinnedMeshRenderer> parts)
     {
         if (data.ContainsKey(category))
