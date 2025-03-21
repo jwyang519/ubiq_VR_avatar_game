@@ -5966,8 +5966,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3723249094422552995, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3723249095139361141, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 388314583}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
 --- !u!1 &386416393
@@ -6056,6 +6060,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 386416393}
   m_Mesh: {fileID: 6141822594388135601, guid: 0f157b7bb8b824db6be63a3449bde6d1, type: 3}
+--- !u!1 &388314582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 388314583}
+  - component: {fileID: 388314584}
+  m_Layer: 0
+  m_Name: Avatar Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &388314583
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388314582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.010967153, y: -0.6873156, z: -0.010379892, w: 0.72620195}
+  m_LocalPosition: {x: 8.36076, y: 0.1384245, z: -5.0389433}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1645838995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &388314584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 388314582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78043eb8bdd2f6b44a1cfd44c3b8fa5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  avatarCatalogue: {fileID: 11400000, guid: 154fbe2147d60d44384df3453ca8feba, type: 2}
+  avatarPrefab: {fileID: 3172939939781028348, guid: 59bce046eba3bb14a80855d4c1810e99, type: 3}
 --- !u!1 &390939230
 GameObject:
   m_ObjectHideFlags: 0
