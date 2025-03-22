@@ -5,7 +5,7 @@ using Unity.XR.CoreUtils;
 public class PlayerAnimationController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Animator animator;
+    public Animator animator;  // 改为 public 以便直接赋值
     
     [Header("Movement Settings")]
     [SerializeField] private float movementThreshold = 0.001f;
@@ -16,28 +16,13 @@ public class PlayerAnimationController : MonoBehaviour
     private Vector2 movementInput;
     private float currentSpeed = 0f;
 
-    private void Start()
-    {
-        Debug.Log("Starting PlayerAnimationController initialization...");
-        
-        if (animator == null)
-        {
-            Debug.Log("Looking for Animator component...");
-            animator = GetComponent<Animator>();
-            if (animator == null)
-            {
-                Debug.LogError("Animator component not found! Please assign it in the inspector.");
-                enabled = false;
-                return;
-            }
-            Debug.Log("Animator found successfully!");
-        }
-
-        Debug.Log("PlayerAnimationController initialized successfully!");
-    }
-
     private void Update()
     {
+        if (animator == null)
+        {
+            return;
+        }
+
         // 获取输入
         float horizontal = Input.GetAxis("Horizontal"); // A/D 或 ←/→
         float vertical = Input.GetAxis("Vertical");     // W/S 或 ↑/↓
@@ -84,6 +69,7 @@ public class PlayerAnimationController : MonoBehaviour
         {
             GUI.Label(new Rect(10, 10, 300, 20), $"Movement Magnitude: {currentSpeed:F3}");
             GUI.Label(new Rect(10, 30, 300, 20), $"Input: {movementInput}");
+            GUI.Label(new Rect(10, 50, 300, 20), $"Has Animator: {animator != null}");
         }
     }
 }
