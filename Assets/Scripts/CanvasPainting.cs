@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.IO;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR;
 
 public class CanvasPainter : MonoBehaviour
 {
@@ -13,15 +15,17 @@ public class CanvasPainter : MonoBehaviour
     public int brushSize = 5;
     public Color drawColor = Color.black; // Default drawing color
 
+    [Header("VR Settings")]
+    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor rayInteractor; // Reference to the XR Ray Interactor
+
     private Texture2D drawingTexture;
     private Renderer rend;
-    private Mouse mouse;
+    private bool isDrawing = false;
 
     void Start()
     {
         // Get the Renderer component on the canvas (Quad)
         rend = GetComponent<Renderer>();
-        mouse = Mouse.current;
 
         // Create a new blank texture with RGBA32 format
         drawingTexture = new Texture2D(textureWidth, textureHeight, TextureFormat.RGBA32, false);
@@ -37,18 +41,27 @@ public class CanvasPainter : MonoBehaviour
 
         // Set the material's main texture to the newly created texture
         rend.material.mainTexture = drawingTexture;
+
+        // If ray interactor reference is not set, try to find it
+        if (rayInteractor == null)
+        {
+            rayInteractor = GameObject.Find("XR Origin/Camera Offset/Right Controller")?.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>();
+            if (rayInteractor == null)
+            {
+                Debug.LogError("XR Ray Interactor not found! Please assign it in the inspector.");
+            }
+        }
     }
 
     void Update()
     {
-        if (mouse == null) return;
+        if (rayInteractor == null) return;
 
-        // For testing, use mouse input. Replace with VR input as needed.
-        if (mouse.leftButton.isPressed)
+        // Check if the ray is hitting something
+        if (rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
-            Vector2 mousePosition = mouse.position.ReadValue();
-            Ray ray = Camera.main.ScreenPointToRay(mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            // Check if the trigger is being pressed on the right controller
+            if (Input.GetKey(KeyCode.Mouse0) || Input.GetButton("Fire1") || Input.GetAxis("XRI_Right_Trigger") > 0.1f)
             {
                 // Check if the ray hit this canvas
                 if (hit.collider.gameObject == gameObject)
