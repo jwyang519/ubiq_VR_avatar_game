@@ -28445,6 +28445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 138974436874542994}
   headAndHandsAvatar: {fileID: 0}
+  headBone: {fileID: 7278257186764276600}
 --- !u!114 &7693990116665478231
 MonoBehaviour:
   m_ObjectHideFlags: 0

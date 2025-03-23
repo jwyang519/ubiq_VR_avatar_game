@@ -14,6 +14,9 @@ namespace Ubiq.Samples
         [Header("Optional Components")]
         public HeadAndHandsAvatar headAndHandsAvatar;
 
+        [Header("Rig Bones")]
+        public Transform headBone;
+
         private InputVar<Pose> lastGoodPose;
         private bool isSetup = false;
 
@@ -97,14 +100,45 @@ namespace Ubiq.Samples
                 {
                     return;
                 }
-                
+
                 pose = lastGoodPose;
             }
-            
-            // Update character root position and rotation
-            // Note: You might want to adjust the position offset based on your needs
-            characterRoot.position = pose.value.position;
-            characterRoot.rotation = pose.value.rotation;
+
+            // Move body position (XZ only)
+            Vector3 newPos = pose.value.position;
+            newPos.y = characterRoot.position.y;
+            characterRoot.position = newPos;
+
+            // Rotate body on Y axis only
+            Vector3 flatForward = Vector3.ProjectOnPlane(pose.value.forward, Vector3.up).normalized;
+            if (flatForward.sqrMagnitude > 0.001f)
+            {
+                characterRoot.forward = flatForward;
+            }
+
+            // Rotate head with full pose (pitch/yaw/roll), relative to body
+            if (headBone)
+            {
+                Quaternion bodyRotation = characterRoot.rotation;
+                Quaternion headRotation = Quaternion.Inverse(bodyRotation) * pose.value.rotation;
+
+                // Extract Euler angles for testing
+                Vector3 euler = headRotation.eulerAngles;
+
+                // TEMP DEBUG: See what these values look like
+                Debug.Log($"[HEAD] Euler from headset relative to body: {euler}");
+
+                // REMAP axes depending on rig — try variations here:
+                Vector3 remapped = new Vector3(
+                    euler.x,    // Up/Down
+                    0,          // We ignore roll for now
+                    euler.y     // Left/Right (may be Z depending on rig)
+                );
+
+                // Apply rotation
+                headBone.localRotation = Quaternion.Euler(remapped);
+            }
+
             lastGoodPose = pose;
         }
 
