@@ -263,7 +263,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 872359044}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Ubiq.Examples._31_AvatarPrefabSetter, Assembly-CSharp
         m_MethodName: Set
         m_Mode: 3
@@ -412,7 +412,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 872359044}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Ubiq.Examples._31_AvatarPrefabSetter, Assembly-CSharp
         m_MethodName: Set
         m_Mode: 3
@@ -811,17 +811,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &872359044 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1239946696772399021, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
-  m_PrefabInstance: {fileID: 8839457145026391851}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b649d42d9b64436bbf2ce4d0ffa8203, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1044695996
 GameObject:
   m_ObjectHideFlags: 0
@@ -1035,7 +1024,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 872359044}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Ubiq.Examples._31_AvatarPrefabSetter, Assembly-CSharp
         m_MethodName: Set
         m_Mode: 3

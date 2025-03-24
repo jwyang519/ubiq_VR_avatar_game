@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4467f6c3b47040840ab7f7665d8bddbe, type: 3}
+  m_Name: CustomizeCatalogue
+  m_EditorClassIdentifier: 
+  prefabs:
+  - {fileID: 7404520840831855655, guid: 73c1873ebc6024c07aaf7ea7cd18bb41, type: 3}
+  - {fileID: 6935726832145720681, guid: ce6038d493d594233a0e64cf6a5d70ca, type: 3}
+  - {fileID: 6363881193757826919, guid: 851105b25ee67450e8dceb80a99aabc6, type: 3}
+  - {fileID: 6335517382775912897, guid: ee5b56ba5eb4d401ba48c19a7037a787, type: 3}
+  - {fileID: 943167050453211593, guid: 4b10bcbdc9e5c49fe9b59ac7cbca6376, type: 3}
+  - {fileID: 8380649154031206769, guid: 6186efb53d2174364a4ea5143fce167a, type: 3}
+  - {fileID: 7041357746568628797, guid: 31512f78bd0bd4500a1033859d4b793a, type: 3}
+  - {fileID: 8762150153474799828, guid: a14acd760d4364581bd6470b74c3bd9e, type: 3}
