@@ -126,7 +126,7 @@ namespace Ubiq.Samples
                 Vector3 euler = headRotation.eulerAngles;
 
                 // TEMP DEBUG: See what these values look like
-                Debug.Log($"[HEAD] Euler from headset relative to body: {euler}");
+                //Debug.Log($"[HEAD] Euler from headset relative to body: {euler}");
 
                 // REMAP axes depending on rig — try variations here:
                 Vector3 remapped = new Vector3(

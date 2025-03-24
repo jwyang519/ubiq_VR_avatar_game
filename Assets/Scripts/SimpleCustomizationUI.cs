@@ -55,7 +55,17 @@ public class SimpleCustomizationUI : MonoBehaviour
 
             newButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                customizer.ShowVariant(categoryName, partPrefab.name);
+                // Find the AvatarPartNetworkSync component (or reference it if you have it assigned)
+                AvatarPartNetworkSync networkSync = FindObjectOfType<AvatarPartNetworkSync>();
+                if (networkSync != null)
+                {
+                    // This method updates the avatar locally and sends the change over the network
+                    networkSync.SetPartNetworked(categoryName, partPrefab.name);
+                }
+                else
+                {
+                    Debug.LogError("AvatarPartNetworkSync component not found!");
+                }
             });
         }
 

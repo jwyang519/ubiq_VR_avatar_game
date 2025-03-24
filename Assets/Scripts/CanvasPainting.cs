@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.IO;
-using UnityEngine.InputSystem;
-using UnityEngine.XR.Interaction.Toolkit;
+
 using UnityEngine.XR;
 
+[RequireComponent(typeof(Renderer))]
 public class CanvasPainter : MonoBehaviour
 {
     [Header("Texture Settings")]
@@ -16,18 +16,17 @@ public class CanvasPainter : MonoBehaviour
     public Color drawColor = Color.black; // Default drawing color
 
     [Header("VR Settings")]
-    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor rayInteractor; // Reference to the XR Ray Interactor
+    public UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor rayInteractor; // If assigned, we'll use VR drawing
 
     private Texture2D drawingTexture;
     private Renderer rend;
-    private bool isDrawing = false;
 
-    void Start()
+    private bool canUseVR = false;   // True if we detect VR
+
+    private void Start()
     {
-        // Get the Renderer component on the canvas (Quad)
+        // 1. Setup the texture for drawing
         rend = GetComponent<Renderer>();
-
-        // Create a new blank texture with RGBA32 format
         drawingTexture = new Texture2D(textureWidth, textureHeight, TextureFormat.RGBA32, false);
 
         // Fill the texture with the background color
@@ -39,32 +38,59 @@ public class CanvasPainter : MonoBehaviour
         drawingTexture.SetPixels(pixels);
         drawingTexture.Apply();
 
-        // Set the material's main texture to the newly created texture
+        // Assign to the material
         rend.material.mainTexture = drawingTexture;
 
-        // If ray interactor reference is not set, try to find it
-        if (rayInteractor == null)
+        // 2. If rayInteractor is not assigned, try to find it
+        if (!rayInteractor)
         {
-            rayInteractor = GameObject.Find("XR Origin/Camera Offset/Right Controller")?.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>();
-            if (rayInteractor == null)
+            // Attempt a naive search by name (adjust path if needed)
+            var rightController = GameObject.Find("XR Origin/Camera Offset/Right Controller");
+            if (rightController)
             {
-                Debug.LogError("XR Ray Interactor not found! Please assign it in the inspector.");
+                rayInteractor = rightController.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor>();
             }
+        }
+
+        // 3. Determine if VR is available (if we found an XRRayInteractor)
+        if (rayInteractor)
+        {
+            canUseVR = true;
+            Debug.Log("[CanvasPainter] VR mode enabled. Using XRRayInteractor for painting.");
+        }
+        else
+        {
+            canUseVR = false;
+            Debug.Log("[CanvasPainter] Desktop mode enabled. Using mouse input for painting.");
         }
     }
 
-    void Update()
+    private void Update()
     {
-        if (rayInteractor == null) return;
+        if (canUseVR && rayInteractor != null)
+        {
+            // --- VR Logic ---
+            TryPaintVR();
+        }
+        else
+        {
+            // --- Desktop Logic ---
+            TryPaintDesktop();
+        }
+    }
 
+    private void TryPaintVR()
+    {
         // Check if the ray is hitting something
         if (rayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit hit))
         {
-            // Check if the trigger is being pressed on the right controller
-            if (Input.GetKey(KeyCode.Mouse0) || Input.GetButton("Fire1") || Input.GetAxis("XRI_Right_Trigger") > 0.1f)
+            // IsSelectActive = user is pulling the trigger (in XR Interaction Toolkit).
+            // Alternatively, you could check: rayInteractor.inputDevice.TryGetFeatureValue(CommonUsages.trigger, out float value)
+            // if you want a more analog approach.
+            if (rayInteractor.isSelectActive)
             {
-                // Check if the ray hit this canvas
-                if (hit.collider.gameObject == gameObject)
+                // If the ray hits this canvas
+                if (hit.collider && hit.collider.gameObject == gameObject)
                 {
                     DrawAtPoint(hit.textureCoord);
                 }
@@ -72,21 +98,40 @@ public class CanvasPainter : MonoBehaviour
         }
     }
 
+    private void TryPaintDesktop()
+    {
+        // If left mouse button is down, let's do a normal Raycast from Camera
+        if (Input.GetMouseButton(0))
+        {
+            if (Camera.main)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.collider && hit.collider.gameObject == gameObject)
+                    {
+                        DrawAtPoint(hit.textureCoord);
+                    }
+                }
+            }
+        }
+    }
+
     // Draw on the texture at the given UV coordinate
-    void DrawAtPoint(Vector2 uv)
+    private void DrawAtPoint(Vector2 uv)
     {
         int x = (int)(uv.x * textureWidth);
         int y = (int)(uv.y * textureHeight);
 
         // Loop through a square of pixels based on brushSize
-        for (int i = -brushSize; i < brushSize; i++)
+        for (int i = -brushSize; i <= brushSize; i++)
         {
-            for (int j = -brushSize; j < brushSize; j++)
+            for (int j = -brushSize; j <= brushSize; j++)
             {
                 int pixelX = x + i;
                 int pixelY = y + j;
 
-                // Check that we are within bounds of the texture
+                // Check that we're within bounds of the texture
                 if (pixelX >= 0 && pixelX < textureWidth && pixelY >= 0 && pixelY < textureHeight)
                 {
                     drawingTexture.SetPixel(pixelX, pixelY, drawColor);
