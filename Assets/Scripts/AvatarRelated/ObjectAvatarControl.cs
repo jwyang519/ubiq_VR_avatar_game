@@ -105,6 +105,25 @@ namespace Ubiq.Samples
             // Note: You might want to adjust the position offset based on your needs
             characterRoot.position = pose.value.position;
             characterRoot.rotation = pose.value.rotation;
+            
+            // Update collider position and rotation if it exists
+            var collider = GetComponent<Collider>();
+            if (collider)
+            {
+                if (collider is BoxCollider boxCollider)
+                {
+                    boxCollider.center = characterRoot.localPosition;
+                }
+                else if (collider is SphereCollider sphereCollider)
+                {
+                    sphereCollider.center = characterRoot.localPosition;
+                }
+                else if (collider is CapsuleCollider capsuleCollider)
+                {
+                    capsuleCollider.center = characterRoot.localPosition;
+                }
+            }
+            
             lastGoodPose = pose;
         }
 
@@ -117,6 +136,25 @@ namespace Ubiq.Samples
             {
                 characterRoot.position = position;
                 characterRoot.rotation = rotation;
+                
+                // Update collider position and rotation if it exists
+                var collider = GetComponent<Collider>();
+                if (collider)
+                {
+                    if (collider is BoxCollider boxCollider)
+                    {
+                        boxCollider.center = characterRoot.localPosition;
+                    }
+                    else if (collider is SphereCollider sphereCollider)
+                    {
+                        sphereCollider.center = characterRoot.localPosition;
+                    }
+                    else if (collider is CapsuleCollider capsuleCollider)
+                    {
+                        capsuleCollider.center = characterRoot.localPosition;
+                    }
+                }
+                
                 Debug.Log($"[{gameObject.name}] Updated character transform");
             }
         }

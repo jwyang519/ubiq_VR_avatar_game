@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 705874937569168033}
   - component: {fileID: 2040240161096630443}
   - component: {fileID: 6036136162528950489}
-  - component: {fileID: 6873701698520371825}
+  - component: {fileID: 3888918157481538331}
   m_Layer: 0
   m_Name: Guita
   m_TagString: Untagged
@@ -234,7 +234,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionSound: {fileID: 8300000, guid: 0b3ec0f298be946428031e5bb7d04650, type: 3}
---- !u!65 &6873701698520371825
+  showCollider: 1
+  colliderColor: {r: 1, g: 0, b: 0, a: 0.3}
+--- !u!65 &3888918157481538331
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -253,8 +255,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.34242606, y: 1.6564655, z: 0.50819933}
-  m_Center: {x: -0.5658929, y: 0.32823288, z: 0.6983518}
+  m_Size: {x: 0.49906838, y: 1.6146685, z: 0.6859614}
+  m_Center: {x: -0.721779, y: 0.30733436, z: 0.49404863}
 --- !u!1001 &2601879091366356901
 PrefabInstance:
   m_ObjectHideFlags: 0

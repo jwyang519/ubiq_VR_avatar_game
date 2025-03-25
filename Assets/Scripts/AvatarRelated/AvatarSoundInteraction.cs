@@ -14,11 +14,20 @@ namespace Ubiq.Samples
         [Tooltip("Sound to play when interacted with by another player")]
         public AudioClip interactionSound;
         
+        [Header("Debug Settings")]
+        [Tooltip("Show collider in runtime")]
+        public bool showCollider = true;
+        
+        [Tooltip("Color of the collider visualization")]
+        public Color colliderColor = new Color(1f, 0f, 0f, 0.3f); // Red with transparency
+        
         // Components
         private AudioSource audioSource;
         private Ubiq.Avatars.Avatar avatar;
         private NetworkContext context;
         private UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable interactable;
+        private Collider objectCollider;
+        private Material debugMaterial;
 
         private void Start()
         {
@@ -32,14 +41,20 @@ namespace Ubiq.Samples
             }
 
             // Check for existing collider
-            var collider = GetComponent<Collider>();
-            if (!collider)
+            objectCollider = GetComponent<Collider>();
+            if (!objectCollider)
             {
                 Debug.LogWarning($"[{gameObject.name}] No collider found! Please add a collider to the object for interaction.");
                 enabled = false;
                 return;
             }
-            Debug.Log($"[{gameObject.name}] Using existing collider: {collider.GetType().Name}");
+            Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name}");
+
+            // Create debug material if needed
+            if (showCollider)
+            {
+                CreateDebugMaterial();
+            }
 
             // Setup audio source
             audioSource = GetComponent<AudioSource>();
@@ -64,12 +79,68 @@ namespace Ubiq.Samples
             context = NetworkScene.Register(this, NetworkId.Create(avatar.NetworkId, "sound_interaction"));
         }
 
+        private void CreateDebugMaterial()
+        {
+            // Create a new material for visualization
+            debugMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            debugMaterial.color = colliderColor;
+            debugMaterial.SetFloat("_Surface", 1); // Transparent
+            debugMaterial.SetFloat("_Blend", 0); // Alpha
+            debugMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            debugMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            debugMaterial.SetInt("_ZWrite", 0);
+            debugMaterial.DisableKeyword("_ALPHATEST_ON");
+            debugMaterial.EnableKeyword("_ALPHABLEND_ON");
+            debugMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            debugMaterial.renderQueue = 3000;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (!showCollider || !objectCollider) return;
+
+            // Draw the collider
+            Gizmos.color = colliderColor;
+            if (objectCollider is BoxCollider boxCollider)
+            {
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Gizmos.DrawCube(boxCollider.center, boxCollider.size);
+            }
+            else if (objectCollider is SphereCollider sphereCollider)
+            {
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Gizmos.DrawSphere(sphereCollider.center, sphereCollider.radius);
+            }
+            else if (objectCollider is CapsuleCollider capsuleCollider)
+            {
+                Gizmos.matrix = transform.localToWorldMatrix;
+                Vector3 size = Vector3.zero;
+                switch (capsuleCollider.direction)
+                {
+                    case 0: // X-axis
+                        size = new Vector3(capsuleCollider.height, capsuleCollider.radius * 2, capsuleCollider.radius * 2);
+                        break;
+                    case 1: // Y-axis
+                        size = new Vector3(capsuleCollider.radius * 2, capsuleCollider.height, capsuleCollider.radius * 2);
+                        break;
+                    case 2: // Z-axis
+                        size = new Vector3(capsuleCollider.radius * 2, capsuleCollider.radius * 2, capsuleCollider.height);
+                        break;
+                }
+                Gizmos.DrawCube(capsuleCollider.center, size);
+            }
+        }
+
         private void OnDestroy()
         {
             if (interactable)
             {
                 interactable.hoverEntered.RemoveListener(OnInteractableHovered);
                 interactable.selectEntered.RemoveListener(OnInteractableGrabbed);
+            }
+            if (debugMaterial)
+            {
+                Destroy(debugMaterial);
             }
         }
 
