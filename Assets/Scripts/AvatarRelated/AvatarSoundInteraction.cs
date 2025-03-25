@@ -150,6 +150,27 @@ namespace Ubiq.Samples
             }
         }
 
+        // Direct collision detection when isTrigger is false
+        private void OnCollisionEnter(Collision collision)
+        {
+            Debug.Log($"[AvatarSoundInteraction] Collision interaction triggered by: {collision.gameObject.name}");
+            PlayInteractionSound(collision.gameObject.name);
+        }
+
+        // Trigger detection when isTrigger is true
+        private void OnTriggerEnter(Collider other)
+        {
+            Debug.Log($"[AvatarSoundInteraction] Trigger interaction triggered by: {other.gameObject.name}");
+            PlayInteractionSound(other.gameObject.name);
+        }
+
+        // Add a simple way to test via mouse click in editor/desktop mode
+        private void OnMouseDown()
+        {
+            Debug.Log($"[AvatarSoundInteraction] Mouse click interaction triggered");
+            PlayInteractionSound("MouseClick");
+        }
+
         private void OnInteractableGrabbed(SelectEnterEventArgs args)
         {
             Debug.Log($"[AvatarSoundInteraction] Grab interaction triggered by: {args.interactorObject?.transform.name}");
