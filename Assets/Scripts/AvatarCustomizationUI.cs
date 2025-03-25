@@ -37,6 +37,9 @@ public class AvatarCustomizationUI : MonoBehaviour
     // Cached reference to the AvatarPartSetter on the local avatar.
     private AvatarPartSetter partSetter;
 
+    // Keep track of the current local avatar (as a GameObject) to detect changes.
+    private GameObject lastLocalAvatar;
+
     private void Start()
     {
         if (avatarManager == null)
@@ -55,12 +58,43 @@ public class AvatarCustomizationUI : MonoBehaviour
             return;
         }
 
-        // Wait until the local avatar is instantiated.
-        StartCoroutine(WaitForLocalAvatar());
+        // Start initial UI generation.
+        StartCoroutine(WaitForLocalAvatarAndGenerateButtons());
     }
 
-    private IEnumerator WaitForLocalAvatar()
+    private void Update()
     {
+        // Check if the local avatar has changed.
+        if (avatarManager.LocalAvatar != null)
+        {
+            // Compare using the avatar's GameObject.
+            if (avatarManager.LocalAvatar.gameObject != lastLocalAvatar)
+            {
+                lastLocalAvatar = avatarManager.LocalAvatar.gameObject;
+                RefreshUI();
+            }
+        }
+    }
+
+    private void RefreshUI()
+    {
+        // If the new local avatar is not customizable, disable the UI.
+        if (avatarManager.LocalAvatar == null ||
+            avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>() == null)
+        {
+            buttonContainer.gameObject.SetActive(false);
+        }
+        else
+        {
+            buttonContainer.gameObject.SetActive(true);
+            // Rebuild the UI.
+            StartCoroutine(WaitForLocalAvatarAndGenerateButtons());
+        }
+    }
+
+    private IEnumerator WaitForLocalAvatarAndGenerateButtons()
+    {
+        // Wait until the local avatar is instantiated.
         while (avatarManager.LocalAvatar == null)
         {
             yield return null;
@@ -75,8 +109,6 @@ public class AvatarCustomizationUI : MonoBehaviour
         }
 
         // Look for the parts container on the local avatar.
-        // This example assumes the local avatar has a child named "Parts",
-        // and under that a child with the name matching categoryName.
         Transform partsContainer = avatarManager.LocalAvatar.transform.Find("Parts");
         if (partsContainer == null)
         {
@@ -115,8 +147,7 @@ public class AvatarCustomizationUI : MonoBehaviour
 
         for (int i = 0; i < customizationParts.Count; i++)
         {
-            int index = i; // local copy for the closure
-            GameObject partOption = customizationParts[index];
+            GameObject partOption = customizationParts[i];
 
             // Instantiate the button prefab under the button container.
             GameObject newButtonObj = Instantiate(buttonPrefab, buttonContainer);
@@ -146,14 +177,19 @@ public class AvatarCustomizationUI : MonoBehaviour
             // Wire up the onClick event.
             button.onClick.AddListener(() =>
             {
-                // 1) Find your AvatarPartNetworkSync
+                // 1) Get the AvatarPartNetworkSync component from the local avatar.
                 AvatarPartNetworkSync netSync = avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>();
                 if (netSync)
                 {
                     netSync.SetPartNetworked(categoryName, partOption.name);
                 }
+                else
+                {
+                    Debug.LogWarning("Current avatar is not customizable (AvatarPartNetworkSync component missing).");
+                    return;
+                }
 
-                // 2) Toggle button states
+                // 2) Toggle button states.
                 foreach (Button btn in spawnedButtons) { btn.interactable = true; }
                 button.interactable = false;
             });
