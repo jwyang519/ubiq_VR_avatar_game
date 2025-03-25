@@ -48,7 +48,10 @@ namespace Ubiq.Samples
                 enabled = false;
                 return;
             }
-            Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name}");
+            
+            // Set collider to trigger mode to work better with XR interactions
+            objectCollider.isTrigger = true;
+            Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name} (set to trigger mode)");
 
             // Create debug material if needed
             if (showCollider)
@@ -65,30 +68,18 @@ namespace Ubiq.Samples
                 audioSource.playOnAwake = false;
             }
 
-            // Setup interactable
+            // Setup interactable with appropriate settings for trigger colliders
             interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
             if (!interactable)
             {
                 Debug.Log($"[{gameObject.name}] Adding XRSimpleInteractable component");
                 interactable = gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
-                // Configure interactable to work with trigger colliders
-                interactable.interactionLayers = InteractionLayerMask.GetMask("Default");
-                interactable.colliders.Clear();
-                interactable.colliders.Add(objectCollider);
-                interactable.selectEntered.AddListener(OnInteractableGrabbed);
                 
-                // Additional settings for trigger colliders
-                interactable.allowTriggerColliders = true;
-                interactable.requireCollider = true;
-                interactable.requireHover = true;
-                interactable.requireSelect = true;
-            }
-            else
-            {
-                // If interactable already exists, ensure it's configured for trigger colliders
-                interactable.colliders.Clear();
-                interactable.colliders.Add(objectCollider);
-                interactable.allowTriggerColliders = true;
+                // Configure interactable for better trigger-based interaction
+                interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Single;
+                
+                // Add listener
+                interactable.selectEntered.AddListener(OnInteractableGrabbed);
             }
 
             // Register for network messages
