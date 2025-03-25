@@ -21,6 +21,10 @@ namespace Ubiq.Samples
         [Tooltip("Color of the collider visualization")]
         public Color colliderColor = new Color(1f, 0f, 0f, 0.3f); // Red with transparency
         
+        [Header("Interaction Settings")]
+        [Tooltip("Set to true to make collider not block movement")]
+        public bool useColliderAsTrigger = true;
+        
         // Components
         private AudioSource audioSource;
         private Ubiq.Avatars.Avatar avatar;
@@ -49,9 +53,14 @@ namespace Ubiq.Samples
                 return;
             }
             
-            // Set collider to trigger mode to work better with XR interactions
-            objectCollider.isTrigger = true;
-            Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name} (set to trigger mode)");
+            // Set collider as trigger to prevent physics interference
+            if (useColliderAsTrigger)
+            {
+                objectCollider.isTrigger = true;
+                Debug.Log($"[{gameObject.name}] Set collider to trigger mode to prevent movement interference");
+            }
+            
+            Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name}");
 
             // Create debug material if needed
             if (showCollider)
@@ -68,17 +77,12 @@ namespace Ubiq.Samples
                 audioSource.playOnAwake = false;
             }
 
-            // Setup interactable with appropriate settings for trigger colliders
+            // Setup interactable with custom settings to prevent movement interference
             interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
             if (!interactable)
             {
                 Debug.Log($"[{gameObject.name}] Adding XRSimpleInteractable component");
                 interactable = gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
-                
-                // Configure interactable for better trigger-based interaction
-                interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Single;
-                
-                // Add listener
                 interactable.selectEntered.AddListener(OnInteractableGrabbed);
             }
 
@@ -148,27 +152,6 @@ namespace Ubiq.Samples
             {
                 Destroy(debugMaterial);
             }
-        }
-
-        // Direct collision detection when isTrigger is false
-        private void OnCollisionEnter(Collision collision)
-        {
-            Debug.Log($"[AvatarSoundInteraction] Collision interaction triggered by: {collision.gameObject.name}");
-            PlayInteractionSound(collision.gameObject.name);
-        }
-
-        // Trigger detection when isTrigger is true
-        private void OnTriggerEnter(Collider other)
-        {
-            Debug.Log($"[AvatarSoundInteraction] Trigger interaction triggered by: {other.gameObject.name}");
-            PlayInteractionSound(other.gameObject.name);
-        }
-
-        // Add a simple way to test via mouse click in editor/desktop mode
-        private void OnMouseDown()
-        {
-            Debug.Log($"[AvatarSoundInteraction] Mouse click interaction triggered");
-            PlayInteractionSound("MouseClick");
         }
 
         private void OnInteractableGrabbed(SelectEnterEventArgs args)

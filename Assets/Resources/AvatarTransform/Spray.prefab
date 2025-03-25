@@ -236,6 +236,7 @@ MonoBehaviour:
   interactionSound: {fileID: 8300000, guid: c67c732bbfe3e4944a8833fb9bcfdadb, type: 3}
   showCollider: 1
   colliderColor: {r: 1, g: 0, b: 0, a: 0.3}
+  useColliderAsTrigger: 1
 --- !u!65 &4988232653921286585
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -255,8 +256,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.25529122, y: 0.33977294, z: 0.14551449}
-  m_Center: {x: -2.8426042, y: 0.21586692, z: 1.5172911}
+  m_Size: {x: 0.31317377, y: 0.4159191, z: 0.35368776}
+  m_Center: {x: -2.8136628, y: 0.17779385, z: 1.5220597}
 --- !u!1001 &2788288408246634405
 PrefabInstance:
   m_ObjectHideFlags: 0
