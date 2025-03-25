@@ -21,10 +21,6 @@ namespace Ubiq.Samples
         [Tooltip("Color of the collider visualization")]
         public Color colliderColor = new Color(1f, 0f, 0f, 0.3f); // Red with transparency
         
-        [Header("Interaction Settings")]
-        [Tooltip("Set to true to make collider not block movement")]
-        public bool useColliderAsTrigger = true;
-        
         // Components
         private AudioSource audioSource;
         private Ubiq.Avatars.Avatar avatar;
@@ -52,14 +48,6 @@ namespace Ubiq.Samples
                 enabled = false;
                 return;
             }
-            
-            // Set collider as trigger to prevent physics interference
-            if (useColliderAsTrigger)
-            {
-                objectCollider.isTrigger = true;
-                Debug.Log($"[{gameObject.name}] Set collider to trigger mode to prevent movement interference");
-            }
-            
             Debug.Log($"[{gameObject.name}] Using existing collider: {objectCollider.GetType().Name}");
 
             // Create debug material if needed
@@ -77,7 +65,7 @@ namespace Ubiq.Samples
                 audioSource.playOnAwake = false;
             }
 
-            // Setup interactable with custom settings to prevent movement interference
+            // Setup interactable
             interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
             if (!interactable)
             {
