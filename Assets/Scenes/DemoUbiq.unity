@@ -1126,7 +1126,7 @@ PrefabInstance:
     - target: {fileID: 1082635309853141966, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
       propertyPath: avatarPrefab
       value: 
-      objectReference: {fileID: 5359513717166727230, guid: ab3353e6a17c6419ea8bdfe1185155a8, type: 3}
+      objectReference: {fileID: 8384764315980140050, guid: 1e17d1818765e4ec8a04d8b9d82d7d27, type: 3}
     - target: {fileID: 1082635309853141966, guid: 73369a530bd8253469d623a3ea6dcff9, type: 3}
       propertyPath: avatarCatalogue
       value: 
