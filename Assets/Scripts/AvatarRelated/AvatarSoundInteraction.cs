@@ -71,7 +71,6 @@ namespace Ubiq.Samples
             {
                 Debug.Log($"[{gameObject.name}] Adding XRSimpleInteractable component");
                 interactable = gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
-                interactable.hoverEntered.AddListener(OnInteractableHovered);
                 interactable.selectEntered.AddListener(OnInteractableGrabbed);
             }
 
@@ -135,22 +134,11 @@ namespace Ubiq.Samples
         {
             if (interactable)
             {
-                interactable.hoverEntered.RemoveListener(OnInteractableHovered);
                 interactable.selectEntered.RemoveListener(OnInteractableGrabbed);
             }
             if (debugMaterial)
             {
                 Destroy(debugMaterial);
-            }
-        }
-
-        private void OnInteractableHovered(HoverEnterEventArgs args)
-        {
-            Debug.Log($"[AvatarSoundInteraction] Hover interaction triggered by: {args.interactorObject?.transform.name}");
-            var interactor = args.interactorObject;
-            if (interactor != null)
-            {
-                PlayInteractionSound(interactor.transform.name);
             }
         }
 
