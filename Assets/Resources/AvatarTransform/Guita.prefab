@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 8088396557591923742}
   - component: {fileID: 705874937569168033}
   - component: {fileID: 2040240161096630443}
-  - component: {fileID: 5071732152340237506}
+  - component: {fileID: 6036136162528950489}
   m_Layer: 0
   m_Name: Guita
   m_TagString: Untagged
@@ -242,7 +242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 2348935338355038528}
   headAndHandsAvatar: {fileID: 0}
---- !u!114 &5071732152340237506
+--- !u!114 &6036136162528950489
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -251,10 +251,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 2965522456056829242}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0c772cfcb683c4548b3a4ddac7b8c2f1, type: 3}
+  m_Script: {fileID: 11500000, guid: 864e2aad4835b475d9b1cbf17fad6da6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   interactionSound: {fileID: 8300000, guid: 0b3ec0f298be946428031e5bb7d04650, type: 3}
+  OnInteracted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &2601879091366356901
 PrefabInstance:
   m_ObjectHideFlags: 0
