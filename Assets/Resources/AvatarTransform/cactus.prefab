@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864e2aad4835b475d9b1cbf17fad6da6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionSound: {fileID: 8300000, guid: 0b3ec0f298be946428031e5bb7d04650, type: 3}
+  interactionSound: {fileID: 8300000, guid: 28b74e568f7264443abc9b3143e12cd3, type: 3}
   showCollider: 1
   colliderColor: {r: 1, g: 0, b: 0, a: 0.3}
 --- !u!65 &2604858650414731607
