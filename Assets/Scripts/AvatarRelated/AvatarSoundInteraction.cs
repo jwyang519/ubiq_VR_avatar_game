@@ -31,6 +31,15 @@ namespace Ubiq.Samples
                 return;
             }
 
+            // Setup collider if not exists
+            var collider = GetComponent<Collider>();
+            if (!collider)
+            {
+                Debug.Log($"[{gameObject.name}] Adding BoxCollider for interaction");
+                collider = gameObject.AddComponent<BoxCollider>();
+                collider.isTrigger = false;
+            }
+
             // Setup audio source
             audioSource = GetComponent<AudioSource>();
             if (!audioSource)
@@ -44,6 +53,7 @@ namespace Ubiq.Samples
             interactable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
             if (!interactable)
             {
+                Debug.Log($"[{gameObject.name}] Adding XRSimpleInteractable component");
                 interactable = gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
                 interactable.hoverEntered.AddListener(OnInteractableHovered);
                 interactable.selectEntered.AddListener(OnInteractableGrabbed);
@@ -64,8 +74,7 @@ namespace Ubiq.Samples
 
         private void OnInteractableHovered(HoverEnterEventArgs args)
         {
-            if (avatar.IsLocal) return;
-            
+            Debug.Log($"[AvatarSoundInteraction] Hover interaction triggered by: {args.interactorObject?.transform.name}");
             var interactor = args.interactorObject;
             if (interactor != null)
             {
@@ -75,8 +84,7 @@ namespace Ubiq.Samples
 
         private void OnInteractableGrabbed(SelectEnterEventArgs args)
         {
-            if (avatar.IsLocal) return;
-            
+            Debug.Log($"[AvatarSoundInteraction] Grab interaction triggered by: {args.interactorObject?.transform.name}");
             var interactor = args.interactorObject;
             if (interactor != null)
             {
@@ -86,18 +94,24 @@ namespace Ubiq.Samples
 
         private void PlayInteractionSound(string interactorId)
         {
-            if (avatar.IsLocal) return;
+            Debug.Log($"[AvatarSoundInteraction] Attempting to play sound. AudioSource exists: {audioSource != null}, Sound clip exists: {interactionSound != null}");
             
             // Send network message
             if (context.Scene != null)
             {
                 context.SendJson(new InteractionMessage { interactorId = interactorId });
+                Debug.Log("[AvatarSoundInteraction] Network message sent");
             }
             
             // Play sound locally
             if (audioSource && interactionSound)
             {
                 audioSource.PlayOneShot(interactionSound);
+                Debug.Log("[AvatarSoundInteraction] Sound played successfully");
+            }
+            else
+            {
+                Debug.LogWarning("[AvatarSoundInteraction] Failed to play sound - missing AudioSource or sound clip");
             }
         }
 
@@ -106,11 +120,17 @@ namespace Ubiq.Samples
         /// </summary>
         public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
         {
+            Debug.Log("[AvatarSoundInteraction] Received network message");
             var interactionMessage = message.FromJson<InteractionMessage>();
             
             if (audioSource && interactionSound)
             {
                 audioSource.PlayOneShot(interactionSound);
+                Debug.Log("[AvatarSoundInteraction] Network-triggered sound played successfully");
+            }
+            else
+            {
+                Debug.LogWarning("[AvatarSoundInteraction] Failed to play network-triggered sound - missing AudioSource or sound clip");
             }
         }
 

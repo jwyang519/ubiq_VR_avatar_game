@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2348935338355038528}
   - component: {fileID: 39772949812329852}
   - component: {fileID: 8560574973293688203}
-  - component: {fileID: 6993893784406995529}
   m_Layer: 0
   m_Name: base
   m_TagString: Untagged
@@ -28,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 2472695574303638321}
   serializedVersion: 2
   m_LocalRotation: {x: -0.02315626, y: 0.000000029802322, z: -0.004195977, w: 0.9997231}
-  m_LocalPosition: {x: -0.6080004, y: 0.414, z: 0.5620005}
+  m_LocalPosition: {x: -0.47, y: 0.414, z: 0.5620005}
   m_LocalScale: {x: 0.019714687, y: 0.020080887, z: 0.032794293}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -88,27 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6993893784406995529
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2472695574303638321}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2965522456056829242
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,6 +102,7 @@ GameObject:
   - component: {fileID: 705874937569168033}
   - component: {fileID: 2040240161096630443}
   - component: {fileID: 6036136162528950489}
+  - component: {fileID: 6873701698520371825}
   m_Layer: 0
   m_Name: Guita
   m_TagString: Untagged
@@ -140,7 +119,7 @@ Transform:
   m_GameObject: {fileID: 2965522456056829242}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.422, y: 0.06, z: -0.806}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -255,21 +234,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionSound: {fileID: 8300000, guid: 0b3ec0f298be946428031e5bb7d04650, type: 3}
-  OnInteracted:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+--- !u!65 &6873701698520371825
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2965522456056829242}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.34242606, y: 1.6564655, z: 0.50819933}
+  m_Center: {x: -0.5658929, y: 0.32823288, z: 0.6983518}
 --- !u!1001 &2601879091366356901
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -288,19 +273,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalScale.z
-      value: 30.518478
+      value: 30.518475
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.713332
+      value: -1.2996315
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -21.655455
+      value: -21.957653
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.5288744
+      value: 5.4991817
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalRotation.w
@@ -312,7 +297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.000000029802322
+      value: -0.00000002980752
       objectReference: {fileID: 0}
     - target: {fileID: 1481279616062966200, guid: 6b670e287d4a341e588d82d306a4df21, type: 3}
       propertyPath: m_LocalRotation.z
