@@ -122,7 +122,7 @@ GameObject:
   - component: {fileID: 7757358211230377097}
   - component: {fileID: 1264857089720458434}
   - component: {fileID: 7732010767923003876}
-  - component: {fileID: 4660493557834169042}
+  - component: {fileID: 6104957972938616719}
   m_Layer: 0
   m_Name: Spray
   m_TagString: Untagged
@@ -227,7 +227,7 @@ MonoBehaviour:
   OnTextureChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4660493557834169042
+--- !u!114 &6104957972938616719
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -236,7 +236,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8380649154031206769}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd40ee0510bdb4581aa25bd64d1547da, type: 3}
+  m_Script: {fileID: 11500000, guid: b2946511d8c1e4a2d8d9dcfd277b41b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 5219558720840008562}

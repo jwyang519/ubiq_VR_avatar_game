@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 513080785441379643}
   - component: {fileID: 5561565823473294338}
   - component: {fileID: 3318243903049116947}
-  - component: {fileID: 4588889337358511018}
+  - component: {fileID: 9121545390395223460}
   m_Layer: 0
   m_Name: Pizza
   m_TagString: Untagged
@@ -118,7 +118,7 @@ MonoBehaviour:
   OnTextureChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4588889337358511018
+--- !u!114 &9121545390395223460
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,7 +127,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 943167050453211593}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd40ee0510bdb4581aa25bd64d1547da, type: 3}
+  m_Script: {fileID: 11500000, guid: b2946511d8c1e4a2d8d9dcfd277b41b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 1481622920378985246}
@@ -160,7 +160,7 @@ Transform:
   m_GameObject: {fileID: 8648560562034602934}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.058, y: 0.661, z: 3.398}
+  m_LocalPosition: {x: -3.088, y: 0.637, z: 3.213}
   m_LocalScale: {x: 0.70559996, y: 0.77632, z: 0.79004997}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -267,15 +267,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8981002012039528312, guid: e652eb4c5ed9b47758d27db430fc9040, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.0020861626
+      value: 0.040430803
       objectReference: {fileID: 0}
     - target: {fileID: 8981002012039528312, guid: e652eb4c5ed9b47758d27db430fc9040, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25538793
+      value: -0.22447285
       objectReference: {fileID: 0}
     - target: {fileID: 8981002012039528312, guid: e652eb4c5ed9b47758d27db430fc9040, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.023425104
+      value: 0.21073721
       objectReference: {fileID: 0}
     - target: {fileID: 8981002012039528312, guid: e652eb4c5ed9b47758d27db430fc9040, type: 3}
       propertyPath: m_LocalRotation.w
