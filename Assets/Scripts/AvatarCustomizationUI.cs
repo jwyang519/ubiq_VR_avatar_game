@@ -119,6 +119,45 @@ public class AvatarCustomizationUI : MonoBehaviour
         }
         spawnedButtons.Clear();
 
+
+        GameObject resetButtonObj = Instantiate(buttonPrefab, buttonContainer);
+        Button resetButton = resetButtonObj.GetComponent<Button>();
+        if (resetButton == null)
+        {
+            Debug.LogError("AvatarCustomizationUI: The button prefab is missing a Button component.");
+        }
+        else
+        {
+            spawnedButtons.Add(resetButton);
+
+            // Set the label to RESET
+            TextMeshProUGUI tmpLabel = resetButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmpLabel != null)
+            {
+                tmpLabel.text = "Reset";
+            }
+            else
+            {
+                Text uiText = resetButtonObj.GetComponentInChildren<Text>();
+                if (uiText != null)
+                {
+                    uiText.text = "Reset";
+                }
+            }
+
+            resetButton.onClick.AddListener(() =>
+            {
+                AvatarPartNetworkSync netSync = avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>();
+                if (netSync)
+                {
+                    netSync.RemovePart(categoryName); // 👈 You'll define this method!
+                }
+
+                foreach (Button btn in spawnedButtons) { btn.interactable = true; }
+                resetButton.interactable = false;
+            });
+        }
+
         for (int i = 0; i < customizationParts.Count; i++)
         {
             GameObject partOption = customizationParts[i];

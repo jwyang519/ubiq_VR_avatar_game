@@ -4,8 +4,7 @@ using UnityEngine;
 using Ubiq.Messaging;
 using UnityEngine.InputSystem;
 using Ubiq.Avatars;
-using Ubiq.Rooms; // Needed for accessing RoomClient
-
+using Ubiq.Rooms;
 
 [Serializable]
 public class AvatarCustomizationData
@@ -45,12 +44,11 @@ public class AvatarPartNetworkSync : MonoBehaviour
     private NetworkContext context;
     private AvatarPartSetter partSetter;
     private RoomClient roomClient; // Reference to the RoomClient
-    private string avatarPartKey;  // Unique key to store avatar customization
+    private string avatarPartKey;  // Unique key to store avatar
 
     private float lastPingTime = 0f;
-    private float pingCooldown = 2f; // seconds
+    private float pingCooldown = 2f;
 
-    // Cache the local customization so we can push it even if we're not in a room yet.
     private AvatarCustomizationData localCustomization = new AvatarCustomizationData();
 
     private void Start()
@@ -75,7 +73,6 @@ public class AvatarPartNetworkSync : MonoBehaviour
         avatarPartKey = "avatarPart_" + avatar.NetworkId.ToString();
         roomClient.OnRoomUpdated.AddListener(OnRoomUpdated);
 
-        // When joining a room, push our local customization (if any) into the room.
         roomClient.OnJoinedRoom.AddListener(room =>
         {
             string current = roomClient.Room[avatarPartKey];
@@ -97,36 +94,23 @@ public class AvatarPartNetworkSync : MonoBehaviour
             Debug.Log("[AvatarPartNetworkSync] Found AvatarPartSetter component.");
         }
 
-        // Immediately apply any persisted customization from the room.
         ApplyPersistedCustomization();
     }
 
-    private void Update()
+    public void RemovePart(string categoryName)
     {
-        // Check for the "P" key to send a ping (example)
-        if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
+        Transform parts = transform.Find("Parts");
+        if (parts == null) return;
+
+        Transform category = parts.Find(categoryName);
+        if (category == null) return;
+
+        foreach (Transform child in category)
         {
-            if (Time.time - lastPingTime > pingCooldown)
-            {
-                SendPing();
-                lastPingTime = Time.time;
-            }
-            else
-            {
-                Debug.Log("Ping cooldown active. Not sending ping.");
-            }
+            child.gameObject.SetActive(false);
         }
     }
 
-    public void SendPing()
-    {
-        var ping = new TestMessage() { text = "ping" };
-        string json = JsonUtility.ToJson(ping);
-        Debug.Log("[AvatarPartNetworkSync] Sending ping message: " + json);
-        context.SendJson(ping);
-    }
-
-    // Updated ProcessMessage to handle AvatarCustomizationData messages.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
         Debug.Log($"[AvatarPartNetworkSync] ProcessMessage called on {gameObject.name}");
@@ -148,7 +132,6 @@ public class AvatarPartNetworkSync : MonoBehaviour
             Debug.LogError("[AvatarPartNetworkSync] Failed to parse customization data: " + e);
         }
 
-        // Fallback if message isn't parsed.
         Debug.LogError("[AvatarPartNetworkSync] Failed to parse incoming message.");
     }
 
@@ -174,7 +157,6 @@ public class AvatarPartNetworkSync : MonoBehaviour
         }
     }
 
-    // Apply the customization stored in the room.
     private void ApplyPersistedCustomization()
     {
         var json = roomClient.Room[avatarPartKey];
@@ -201,12 +183,10 @@ public class AvatarPartNetworkSync : MonoBehaviour
         }
     }
 
-    // This method is called by your UI when a user selects a new part.
     public void SetPartNetworked(string category, string partName)
     {
         Debug.Log($"[AvatarPartNetworkSync] Local SetPartNetworked called with category: {category}, partName: {partName}");
 
-        // 1) Update locally using the AvatarPartSetter.
         if (partSetter != null)
         {
             partSetter.SetPart(category, partName);
@@ -217,24 +197,18 @@ public class AvatarPartNetworkSync : MonoBehaviour
             return;
         }
 
-        // 2) Update our local cache.
         localCustomization.SetPart(category, partName);
 
-        // 3) Serialize the full customization data.
         string json = JsonUtility.ToJson(localCustomization);
         Debug.Log($"[AvatarPartNetworkSync] Sending updated customization JSON: {json}");
 
-        // 4) Optionally, send an ephemeral message to remote peers.
         context.SendJson(localCustomization);
 
-        // 5) Persist the change in the room state so new joiners can read it.
         roomClient.Room[avatarPartKey] = json;
     }
 
     public AvatarCustomizationData GetLocalCustomization()
     {
-        // Return a copy or the actual reference to your local customization.
-        // If you need to return a copy, create a new instance and copy the lists.
         return localCustomization;
     }
 
