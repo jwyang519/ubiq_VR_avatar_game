@@ -31,14 +31,15 @@ namespace Ubiq.Samples
                 return;
             }
 
-            // Setup collider if not exists
+            // Check for existing collider
             var collider = GetComponent<Collider>();
             if (!collider)
             {
-                Debug.Log($"[{gameObject.name}] Adding BoxCollider for interaction");
-                collider = gameObject.AddComponent<BoxCollider>();
-                collider.isTrigger = false;
+                Debug.LogWarning($"[{gameObject.name}] No collider found! Please add a collider to the object for interaction.");
+                enabled = false;
+                return;
             }
+            Debug.Log($"[{gameObject.name}] Using existing collider: {collider.GetType().Name}");
 
             // Setup audio source
             audioSource = GetComponent<AudioSource>();
