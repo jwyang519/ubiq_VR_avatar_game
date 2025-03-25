@@ -1,9 +1,44 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Ubiq.Messaging;
 using UnityEngine.InputSystem;
 using Ubiq.Avatars;
 using Ubiq.Rooms; // Needed for accessing RoomClient
+
+
+[Serializable]
+public class AvatarCustomizationData
+{
+    public List<string> categories = new List<string>();
+    public List<string> partNames = new List<string>();
+
+    /// <summary>
+    /// Update or add a part for the specified category.
+    /// </summary>
+    public void SetPart(string category, string partName)
+    {
+        int index = categories.IndexOf(category);
+        if (index >= 0)
+        {
+            partNames[index] = partName;
+        }
+        else
+        {
+            categories.Add(category);
+            partNames.Add(partName);
+        }
+    }
+
+    /// <summary>
+    /// Retrieve the part for the specified category.
+    /// </summary>
+    public string GetPart(string category)
+    {
+        int index = categories.IndexOf(category);
+        return (index >= 0) ? partNames[index] : null;
+    }
+}
 
 public class AvatarPartNetworkSync : MonoBehaviour
 {
@@ -14,6 +49,9 @@ public class AvatarPartNetworkSync : MonoBehaviour
 
     private float lastPingTime = 0f;
     private float pingCooldown = 2f; // seconds
+
+    // Cache the local customization so we can push it even if we're not in a room yet.
+    private AvatarCustomizationData localCustomization = new AvatarCustomizationData();
 
     private void Start()
     {
@@ -37,7 +75,17 @@ public class AvatarPartNetworkSync : MonoBehaviour
         avatarPartKey = "avatarPart_" + avatar.NetworkId.ToString();
         roomClient.OnRoomUpdated.AddListener(OnRoomUpdated);
 
-        Debug.LogError($"[AvatarPartNetworkSync] AvatarPartKey: {avatarPartKey}");
+        // When joining a room, push our local customization (if any) into the room.
+        roomClient.OnJoinedRoom.AddListener(room =>
+        {
+            string current = roomClient.Room[avatarPartKey];
+            if (string.IsNullOrEmpty(current))
+            {
+                var json = JsonUtility.ToJson(localCustomization);
+                roomClient.Room[avatarPartKey] = json;
+                Debug.Log($"[AvatarPartNetworkSync] Pushed local customization on join: {json}");
+            }
+        });
 
         partSetter = GetComponent<AvatarPartSetter>();
         if (partSetter == null)
@@ -55,7 +103,7 @@ public class AvatarPartNetworkSync : MonoBehaviour
 
     private void Update()
     {
-        // Example: Using the new Input System to check for the "P" key.
+        // Check for the "P" key to send a ping (example)
         if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
         {
             if (Time.time - lastPingTime > pingCooldown)
@@ -78,55 +126,79 @@ public class AvatarPartNetworkSync : MonoBehaviour
         context.SendJson(ping);
     }
 
-    // This method will be called when the room state is updated.
-    private void OnRoomUpdated(IRoom room)
-    {
-        var partData = room[avatarPartKey];
-        if (!string.IsNullOrEmpty(partData))
-        {
-            var msg = JsonUtility.FromJson<PartMessage>(partData);
-            if (msg != null && !string.IsNullOrEmpty(msg.category))
-            {
-                Debug.Log($"[AvatarPartNetworkSync] Applying persisted change: {msg.category} -> {msg.partName}");
-                partSetter?.SetPart(msg.category, msg.partName);
-            }
-        }
-    }
-
+    // Updated ProcessMessage to handle AvatarCustomizationData messages.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
         Debug.Log($"[AvatarPartNetworkSync] ProcessMessage called on {gameObject.name}");
         string rawMessage = message.ToString();
         Debug.Log($"[AvatarPartNetworkSync] Received raw message: {rawMessage}");
 
-        var partMsg = message.FromJson<PartMessage>();
-        if (partMsg != null && !string.IsNullOrEmpty(partMsg.category))
+        try
         {
-            Debug.Log($"[AvatarPartNetworkSync] Parsed PartMessage: category = {partMsg.category}, partName = {partMsg.partName}");
-            ApplyRemoteChange(partMsg);
-            return;
+            AvatarCustomizationData remoteData = message.FromJson<AvatarCustomizationData>();
+            if (remoteData != null && remoteData.categories != null && remoteData.categories.Count > 0)
+            {
+                Debug.Log($"[AvatarPartNetworkSync] Received remote customization data with {remoteData.categories.Count} entries.");
+                ApplyRemoteCustomization(remoteData);
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("[AvatarPartNetworkSync] Failed to parse customization data: " + e);
         }
 
-        var testMsg = message.FromJson<TestMessage>();
-        if (testMsg != null && !string.IsNullOrEmpty(testMsg.text))
+        // Fallback if message isn't parsed.
+        Debug.LogError("[AvatarPartNetworkSync] Failed to parse incoming message.");
+    }
+
+    private void ApplyRemoteCustomization(AvatarCustomizationData data)
+    {
+        for (int i = 0; i < data.categories.Count; i++)
         {
-            Debug.Log($"[AvatarPartNetworkSync] Received TestMessage: {testMsg.text}");
-        }
-        else
-        {
-            Debug.LogError("[AvatarPartNetworkSync] Failed to parse incoming message.");
+            string category = data.categories[i];
+            string partName = data.partNames[i];
+            Debug.Log($"[AvatarPartNetworkSync] Applying remote customization: {category} -> {partName}");
+            partSetter?.SetPart(category, partName);
         }
     }
 
-    private void ApplyRemoteChange(PartMessage msg)
+    // Called when the room state updates.
+    private void OnRoomUpdated(IRoom room)
     {
-        if (partSetter == null)
+        var json = room[avatarPartKey];
+        if (!string.IsNullOrEmpty(json))
         {
-            Debug.LogError("[AvatarPartNetworkSync] Cannot apply remote change because AvatarPartSetter is null.");
-            return;
+            Debug.Log($"[AvatarPartNetworkSync] OnRoomUpdated found customization JSON: {json}");
+            ApplyPersistedCustomization();
         }
-        Debug.Log($"[AvatarPartNetworkSync] Applying remote change: {msg.category} -> {msg.partName}");
-        partSetter.SetPart(msg.category, msg.partName);
+    }
+
+    // Apply the customization stored in the room.
+    private void ApplyPersistedCustomization()
+    {
+        var json = roomClient.Room[avatarPartKey];
+        if (!string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                AvatarCustomizationData data = JsonUtility.FromJson<AvatarCustomizationData>(json);
+                for (int i = 0; i < data.categories.Count; i++)
+                {
+                    string category = data.categories[i];
+                    string partName = data.partNames[i];
+                    if (!string.IsNullOrEmpty(category) && !string.IsNullOrEmpty(partName))
+                    {
+                        Debug.Log($"[AvatarPartNetworkSync] Applying persisted change: {category} -> {partName}");
+                        partSetter?.SetPart(category, partName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[AvatarPartNetworkSync] Failed to parse customization data: " + e);
+            }
+        }
     }
 
     // This method is called by your UI when a user selects a new part.
@@ -142,44 +214,26 @@ public class AvatarPartNetworkSync : MonoBehaviour
         else
         {
             Debug.LogError("[AvatarPartNetworkSync] Cannot set part because AvatarPartSetter is null.");
+            return;
         }
 
-        // 2) Create the message to be sent.
-        var msg = new PartMessage() { category = category, partName = partName };
-        string json = JsonUtility.ToJson(msg);
-        Debug.Log($"[AvatarPartNetworkSync] Sending JSON message: {json}");
+        // 2) Update our local cache.
+        localCustomization.SetPart(category, partName);
 
-        // 3) Send the ephemeral JSON message to remote peers.
-        context.SendJson(msg);
+        // 3) Serialize the full customization data.
+        string json = JsonUtility.ToJson(localCustomization);
+        Debug.Log($"[AvatarPartNetworkSync] Sending updated customization JSON: {json}");
 
-        // 4) Persist the change in the room state so new joiners can read it.
+        // 4) Optionally, send an ephemeral message to remote peers.
+        context.SendJson(localCustomization);
+
+        // 5) Persist the change in the room state so new joiners can read it.
         roomClient.Room[avatarPartKey] = json;
-    }
-
-    private void ApplyPersistedCustomization()
-    {
-        var partData = roomClient.Room[avatarPartKey];
-        if (!string.IsNullOrEmpty(partData))
-        {
-            var msg = JsonUtility.FromJson<PartMessage>(partData);
-            if (msg != null && !string.IsNullOrEmpty(msg.category))
-            {
-                Debug.Log($"[AvatarPartNetworkSync] Applying persisted change on init: {msg.category} -> {msg.partName}");
-                partSetter?.SetPart(msg.category, msg.partName);
-            }
-        }
     }
 
     [Serializable]
     private class TestMessage
     {
         public string text;
-    }
-
-    [Serializable]
-    private class PartMessage
-    {
-        public string category;
-        public string partName;
     }
 }
