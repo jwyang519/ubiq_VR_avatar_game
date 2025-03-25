@@ -123,6 +123,8 @@ GameObject:
   - component: {fileID: 589522913496876030}
   - component: {fileID: 7077803827252350711}
   - component: {fileID: 7267421063325489536}
+  - component: {fileID: 7325636470108660598}
+  - component: {fileID: 1127083715564684341}
   m_Layer: 0
   m_Name: cactus
   m_TagString: Untagged
@@ -241,6 +243,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 5394876224268392543}
   headAndHandsAvatar: {fileID: 0}
+--- !u!114 &7325636470108660598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8762150153474799828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 864e2aad4835b475d9b1cbf17fad6da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionSound: {fileID: 8300000, guid: 28b74e568f7264443abc9b3143e12cd3, type: 3}
+  showCollider: 1
+  colliderColor: {r: 1, g: 0, b: 0, a: 0.3}
+--- !u!65 &1127083715564684341
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8762150153474799828}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.23874295, y: 0.46762228, z: 0.2858553}
+  m_Center: {x: -1.8698156, y: 1.4671562, z: -0.011426568}
 --- !u!1001 &6757069664569564849
 PrefabInstance:
   m_ObjectHideFlags: 0

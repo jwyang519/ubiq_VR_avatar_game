@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6700855767201953109}
   - component: {fileID: 3452052271446113473}
   - component: {fileID: 7256914820933006794}
-  - component: {fileID: 6649097499728953231}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -88,27 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6649097499728953231
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2988481756948877388}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.24346137, y: 0.16468209, z: 0.21260533}
-  m_Center: {x: 0.018050551, y: -0.11393413, z: 0.12361373}
 --- !u!1 &6335517382775912897
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,6 +101,8 @@ GameObject:
   - component: {fileID: 282101647298791280}
   - component: {fileID: 4699135237498699421}
   - component: {fileID: 2548435927952464801}
+  - component: {fileID: 2894426926910324584}
+  - component: {fileID: 9083587559359851757}
   m_Layer: 0
   m_Name: Heart
   m_TagString: Untagged
@@ -139,7 +119,7 @@ Transform:
   m_GameObject: {fileID: 6335517382775912897}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.068, y: 0, z: 0.016}
+  m_LocalPosition: {x: -0.079, y: 0, z: 0.058}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -241,6 +221,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterRoot: {fileID: 6700855767201953109}
   headAndHandsAvatar: {fileID: 0}
+--- !u!114 &2894426926910324584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6335517382775912897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 864e2aad4835b475d9b1cbf17fad6da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionSound: {fileID: 8300000, guid: a4cfcaaf5e18a46028fc3821589c35f6, type: 3}
+  showCollider: 1
+  colliderColor: {r: 1, g: 0, b: 0, a: 0.3}
+--- !u!65 &9083587559359851757
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6335517382775912897}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5110531, y: 0.36618495, z: 0.45325217}
+  m_Center: {x: -3.5236197, y: 0.6043463, z: 0.45765072}
 --- !u!1001 &8613226480863023003
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -249,6 +265,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6700855767201953109}
     m_Modifications:
+    - target: {fileID: 1089605757297302624, guid: 7cb3aa09eef1f4fc686952199990e7e1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3088924884933323614, guid: 7cb3aa09eef1f4fc686952199990e7e1, type: 3}
       propertyPath: m_Name
       value: SM_PillowHeartWinePink_03
