@@ -27,13 +27,17 @@ public class AvatarPartSetter : MonoBehaviour
             return;
         }
 
-        // Disable all current parts in this category.
         foreach (Transform child in categoryTransform)
         {
             child.gameObject.SetActive(false);
         }
 
-        // Find the child with the given name and enable it.
+        if (string.IsNullOrEmpty(partName))
+        {
+            Debug.Log("AvatarPartSetter: Reset category '" + category + "' (no part selected).");
+            return;
+        }
+
         Transform chosenPart = categoryTransform.Find(partName);
         if (chosenPart)
         {

@@ -46,9 +46,6 @@ public class AvatarPartNetworkSync : MonoBehaviour
     private RoomClient roomClient; // Reference to the RoomClient
     private string avatarPartKey;  // Unique key to store avatar
 
-    private float lastPingTime = 0f;
-    private float pingCooldown = 2f;
-
     private AvatarCustomizationData localCustomization = new AvatarCustomizationData();
 
     private void Start()
@@ -94,7 +91,42 @@ public class AvatarPartNetworkSync : MonoBehaviour
             Debug.Log("[AvatarPartNetworkSync] Found AvatarPartSetter component.");
         }
 
+        EquipDefaultParts();
+
         ApplyPersistedCustomization();
+    }
+
+    public void EquipDefaultParts()
+    {
+        string[] defaultCategories = { "Face", "Shoes" };
+
+        Transform partsContainer = transform.Find("Parts");
+        if (partsContainer == null)
+        {
+            Debug.LogWarning("EquipDefaultParts: No 'Parts' container found.");
+            return;
+        }
+
+        foreach (string category in defaultCategories)
+        {
+            Transform catTransform = partsContainer.Find(category);
+            if (catTransform != null && catTransform.childCount > 0)
+            {
+                // Disable all options first
+                foreach (Transform part in catTransform)
+                {
+                    part.gameObject.SetActive(false);
+                }
+
+                // Enable the first part
+                Transform firstPart = catTransform.GetChild(0);
+                firstPart.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning($"EquipDefaultParts: No parts found for category '{category}'.");
+            }
+        }
     }
 
     public void RemovePart(string categoryName)

@@ -150,7 +150,7 @@ public class AvatarCustomizationUI : MonoBehaviour
                 AvatarPartNetworkSync netSync = avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>();
                 if (netSync)
                 {
-                    netSync.RemovePart(categoryName); // 👈 You'll define this method!
+                    netSync.SetPartNetworked(categoryName, null); // 👈 You'll define this method!
                 }
 
                 foreach (Button btn in spawnedButtons) { btn.interactable = true; }
