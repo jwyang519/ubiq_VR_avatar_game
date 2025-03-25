@@ -231,6 +231,13 @@ public class AvatarPartNetworkSync : MonoBehaviour
         roomClient.Room[avatarPartKey] = json;
     }
 
+    public AvatarCustomizationData GetLocalCustomization()
+    {
+        // Return a copy or the actual reference to your local customization.
+        // If you need to return a copy, create a new instance and copy the lists.
+        return localCustomization;
+    }
+
     [Serializable]
     private class TestMessage
     {
