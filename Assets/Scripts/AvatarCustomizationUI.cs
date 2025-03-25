@@ -5,39 +5,26 @@ using UnityEngine.UI;
 using TMPro;
 using Ubiq.Avatars; // For AvatarManager
 
-/// <summary>
-/// This script auto-generates UI buttons for customizing a specific avatar category (e.g., Shoes).
-/// It automatically finds the local avatar (via AvatarManager), then searches its parts hierarchy.
-/// When a button is clicked, it calls the AvatarPartSetter component (attached on the avatar)
-/// to update that part. It also toggles button interactability so that the selected button is disabled.
-/// </summary>
 public class AvatarCustomizationUI : MonoBehaviour
 {
-    [Header("UI References")]
     [Tooltip("Prefab for the UI Button (must include a Button component and a label, e.g., TextMeshProUGUI).")]
     public GameObject buttonPrefab;
 
     [Tooltip("Parent container (e.g., the Content object of a Scroll View) for generated buttons.")]
     public Transform buttonContainer;
 
-    [Header("Customization Settings")]
     [Tooltip("The category to customize (e.g., 'Shoes', 'Top'). Must match the name of a child in the avatar’s parts container.")]
     public string categoryName;
 
-    [Header("Avatar Manager")]
     [Tooltip("Reference to the AvatarManager that instantiates the local avatar.")]
     public AvatarManager avatarManager;
 
-    // Internal list of part options found under the specified category.
     private List<GameObject> customizationParts = new List<GameObject>();
 
-    // List of generated buttons (for toggling interactability).
     private List<Button> spawnedButtons = new List<Button>();
 
-    // Cached reference to the AvatarPartSetter on the local avatar.
     private AvatarPartSetter partSetter;
 
-    // Keep track of the current local avatar (as a GameObject) to detect changes.
     private GameObject lastLocalAvatar;
 
     private void Start()
@@ -58,16 +45,13 @@ public class AvatarCustomizationUI : MonoBehaviour
             return;
         }
 
-        // Start initial UI generation.
         StartCoroutine(WaitForLocalAvatarAndGenerateButtons());
     }
 
     private void Update()
     {
-        // Check if the local avatar has changed.
         if (avatarManager.LocalAvatar != null)
         {
-            // Compare using the avatar's GameObject.
             if (avatarManager.LocalAvatar.gameObject != lastLocalAvatar)
             {
                 lastLocalAvatar = avatarManager.LocalAvatar.gameObject;
@@ -78,7 +62,6 @@ public class AvatarCustomizationUI : MonoBehaviour
 
     private void RefreshUI()
     {
-        // If the new local avatar is not customizable, disable the UI.
         if (avatarManager.LocalAvatar == null ||
             avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>() == null)
         {
@@ -87,20 +70,17 @@ public class AvatarCustomizationUI : MonoBehaviour
         else
         {
             buttonContainer.gameObject.SetActive(true);
-            // Rebuild the UI.
             StartCoroutine(WaitForLocalAvatarAndGenerateButtons());
         }
     }
 
     private IEnumerator WaitForLocalAvatarAndGenerateButtons()
     {
-        // Wait until the local avatar is instantiated.
         while (avatarManager.LocalAvatar == null)
         {
             yield return null;
         }
 
-        // Once available, get the AvatarPartSetter component.
         partSetter = avatarManager.LocalAvatar.GetComponent<AvatarPartSetter>();
         if (partSetter == null)
         {
@@ -108,7 +88,6 @@ public class AvatarCustomizationUI : MonoBehaviour
             yield break;
         }
 
-        // Look for the parts container on the local avatar.
         Transform partsContainer = avatarManager.LocalAvatar.transform.Find("Parts");
         if (partsContainer == null)
         {
@@ -123,7 +102,6 @@ public class AvatarCustomizationUI : MonoBehaviour
             yield break;
         }
 
-        // Collect all available parts (each child is an option).
         customizationParts.Clear();
         foreach (Transform child in categoryContainer)
         {
@@ -133,12 +111,8 @@ public class AvatarCustomizationUI : MonoBehaviour
         GenerateButtons();
     }
 
-    /// <summary>
-    /// Instantiates a UI button for each available customization part and wires up its OnClick events.
-    /// </summary>
     private void GenerateButtons()
     {
-        // Clear any existing buttons from the container.
         foreach (Transform child in buttonContainer)
         {
             Destroy(child.gameObject);
@@ -149,7 +123,6 @@ public class AvatarCustomizationUI : MonoBehaviour
         {
             GameObject partOption = customizationParts[i];
 
-            // Instantiate the button prefab under the button container.
             GameObject newButtonObj = Instantiate(buttonPrefab, buttonContainer);
             Button button = newButtonObj.GetComponent<Button>();
             if (button == null)
@@ -159,11 +132,10 @@ public class AvatarCustomizationUI : MonoBehaviour
             }
             spawnedButtons.Add(button);
 
-            // Set the button's label to the name of the part.
             TextMeshProUGUI tmpLabel = newButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             if (tmpLabel != null)
             {
-                tmpLabel.text = partOption.name;
+                tmpLabel.text = FormatPartName(partOption.name);
             }
             else
             {
@@ -174,10 +146,8 @@ public class AvatarCustomizationUI : MonoBehaviour
                 }
             }
 
-            // Wire up the onClick event.
             button.onClick.AddListener(() =>
             {
-                // 1) Get the AvatarPartNetworkSync component from the local avatar.
                 AvatarPartNetworkSync netSync = avatarManager.LocalAvatar.GetComponent<AvatarPartNetworkSync>();
                 if (netSync)
                 {
@@ -189,10 +159,21 @@ public class AvatarCustomizationUI : MonoBehaviour
                     return;
                 }
 
-                // 2) Toggle button states.
                 foreach (Button btn in spawnedButtons) { btn.interactable = true; }
                 button.interactable = false;
             });
         }
+    }
+
+    private string FormatPartName(string rawName)
+    {
+        string withSpaces = rawName.Replace("_", " ");
+
+        if (withSpaces.Length > 0)
+        {
+            withSpaces = char.ToUpper(withSpaces[0]) + withSpaces.Substring(1);
+        }
+
+        return withSpaces;
     }
 }
