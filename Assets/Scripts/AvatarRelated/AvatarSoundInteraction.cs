@@ -71,7 +71,17 @@ namespace Ubiq.Samples
             {
                 Debug.Log($"[{gameObject.name}] Adding XRSimpleInteractable component");
                 interactable = gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable>();
+                // Configure interactable to work with trigger colliders
+                interactable.interactionLayers = InteractionLayerMask.GetMask("Default");
+                interactable.colliders.Clear();
+                interactable.colliders.Add(objectCollider);
                 interactable.selectEntered.AddListener(OnInteractableGrabbed);
+            }
+            else
+            {
+                // If interactable already exists, ensure it's configured for trigger colliders
+                interactable.colliders.Clear();
+                interactable.colliders.Add(objectCollider);
             }
 
             // Register for network messages

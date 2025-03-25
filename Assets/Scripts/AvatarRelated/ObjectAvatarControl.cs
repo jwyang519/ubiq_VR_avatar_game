@@ -87,6 +87,28 @@ namespace Ubiq.Samples
             }
         }
 
+        private void UpdateColliderPosition()
+        {
+            var collider = GetComponent<Collider>();
+            if (!collider) return;
+
+            // Update collider center based on character root position
+            Vector3 localPosition = characterRoot.localPosition;
+            
+            switch (collider)
+            {
+                case BoxCollider boxCollider:
+                    boxCollider.center = localPosition;
+                    break;
+                case SphereCollider sphereCollider:
+                    sphereCollider.center = localPosition;
+                    break;
+                case CapsuleCollider capsuleCollider:
+                    capsuleCollider.center = localPosition;
+                    break;
+            }
+        }
+
         private void HeadAndHandsEvents_OnHeadUpdate(InputVar<Pose> pose)
         {
             if (!characterRoot) return;
@@ -102,27 +124,11 @@ namespace Ubiq.Samples
             }
             
             // Update character root position and rotation
-            // Note: You might want to adjust the position offset based on your needs
             characterRoot.position = pose.value.position;
             characterRoot.rotation = pose.value.rotation;
             
-            // Update collider position and rotation if it exists
-            var collider = GetComponent<Collider>();
-            if (collider)
-            {
-                if (collider is BoxCollider boxCollider)
-                {
-                    boxCollider.center = characterRoot.localPosition;
-                }
-                else if (collider is SphereCollider sphereCollider)
-                {
-                    sphereCollider.center = characterRoot.localPosition;
-                }
-                else if (collider is CapsuleCollider capsuleCollider)
-                {
-                    capsuleCollider.center = characterRoot.localPosition;
-                }
-            }
+            // Update collider position
+            UpdateColliderPosition();
             
             lastGoodPose = pose;
         }
@@ -132,31 +138,15 @@ namespace Ubiq.Samples
         /// </summary>
         public void UpdateCharacterTransform(Vector3 position, Quaternion rotation)
         {
-            if (characterRoot)
-            {
-                characterRoot.position = position;
-                characterRoot.rotation = rotation;
-                
-                // Update collider position and rotation if it exists
-                var collider = GetComponent<Collider>();
-                if (collider)
-                {
-                    if (collider is BoxCollider boxCollider)
-                    {
-                        boxCollider.center = characterRoot.localPosition;
-                    }
-                    else if (collider is SphereCollider sphereCollider)
-                    {
-                        sphereCollider.center = characterRoot.localPosition;
-                    }
-                    else if (collider is CapsuleCollider capsuleCollider)
-                    {
-                        capsuleCollider.center = characterRoot.localPosition;
-                    }
-                }
-                
-                Debug.Log($"[{gameObject.name}] Updated character transform");
-            }
+            if (!characterRoot) return;
+
+            characterRoot.position = position;
+            characterRoot.rotation = rotation;
+            
+            // Update collider position
+            UpdateColliderPosition();
+            
+            Debug.Log($"[{gameObject.name}] Updated character transform");
         }
 
         /// <summary>
