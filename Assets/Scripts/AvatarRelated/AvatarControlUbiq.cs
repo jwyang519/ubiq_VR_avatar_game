@@ -17,6 +17,9 @@ namespace Ubiq.Samples
         [Header("Rig Bones")]
         public Transform headBone;
 
+        [Header("Height Settings")]
+        [SerializeField] private float targetCharacterHeight = 1.6f;  // Default height in meters
+
         private InputVar<Pose> lastGoodPose;
         private bool isSetup = false;
 
@@ -75,6 +78,15 @@ namespace Ubiq.Samples
                 SetupComponents();
             }
 
+            // Set character to target height
+            if (characterRoot)
+            {
+                Vector3 currentPos = characterRoot.position;
+                currentPos.y = targetCharacterHeight;
+                characterRoot.position = currentPos;
+                Debug.Log($"[{gameObject.name}] Set character height to target height: {targetCharacterHeight}");
+            }
+
             if (headAndHandsAvatar)
             {
                 headAndHandsAvatar.OnHeadUpdate.AddListener(HeadAndHandsEvents_OnHeadUpdate);
@@ -104,9 +116,9 @@ namespace Ubiq.Samples
                 pose = lastGoodPose;
             }
 
-            // Move body position (XZ only)
+            // Move body position (XZ only), maintain target height
             Vector3 newPos = pose.value.position;
-            newPos.y = characterRoot.position.y;
+            newPos.y = targetCharacterHeight;
             characterRoot.position = newPos;
 
             // Rotate body on Y axis only
