@@ -76,12 +76,19 @@ namespace Ubiq.Samples
                 interactable.colliders.Clear();
                 interactable.colliders.Add(objectCollider);
                 interactable.selectEntered.AddListener(OnInteractableGrabbed);
+                
+                // Additional settings for trigger colliders
+                interactable.allowTriggerColliders = true;
+                interactable.requireCollider = true;
+                interactable.requireHover = true;
+                interactable.requireSelect = true;
             }
             else
             {
                 // If interactable already exists, ensure it's configured for trigger colliders
                 interactable.colliders.Clear();
                 interactable.colliders.Add(objectCollider);
+                interactable.allowTriggerColliders = true;
             }
 
             // Register for network messages
