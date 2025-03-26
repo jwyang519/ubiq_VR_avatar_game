@@ -101,12 +101,22 @@ public class MyNetworkedObject : MonoBehaviour
     public void OnSelectEntered()
     {
         isGrabbed = true;
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
     }
 
     // Call this when the object is released.
     public void OnSelectExited()
     {
         isGrabbed = false;
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
         // Optionally, pause network sync briefly to let the object settle.
         StartCoroutine(ResumeSyncAfterDelay(0.5f));
     }
