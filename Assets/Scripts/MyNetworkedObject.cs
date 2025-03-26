@@ -39,20 +39,19 @@ public class MyNetworkedObject : MonoBehaviour
         targetPosition = transform.position;
         targetRotation = transform.rotation;
 
-        // If a Rigidbody is attached, disable physics on remote clients
+        // If a Rigidbody is attached, set initial state as non-kinematic
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Make sure the object's motion is completely driven by network updates.
-            rb.isKinematic = true;
-            rb.useGravity = false;
+            rb.isKinematic = false;
+            rb.useGravity = true;
         }
     }
 
     private void Update()
     {
-        // Only send updates when the object isn't grabbed locally.
-        if (!isGrabbed)
+        // Only send updates when the object isn't grabbed locally and is kinematic
+        if (!isGrabbed && rb != null && rb.isKinematic)
         {
             if (Vector3.Distance(transform.position, lastSentPosition) > positionThreshold ||
                 Quaternion.Angle(transform.rotation, lastSentRotation) > rotationThreshold)
@@ -69,22 +68,29 @@ public class MyNetworkedObject : MonoBehaviour
             }
         }
 
-        // Smoothly interpolate the object toward the target values received from the network.
-        transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
+        // Only interpolate if the object is not grabbed and is kinematic
+        if (!isGrabbed && rb != null && rb.isKinematic)
+        {
+            transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
+        }
     }
 
     // Called when a network message is received.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Parse the JSON message.
-        Message msg = message.FromJson<Message>();
-        // Update target values so the object interpolates smoothly.
-        targetPosition = msg.position;
-        targetRotation = msg.rotation;
-        // Also update last sent values so we don't immediately trigger another update.
-        lastSentPosition = msg.position;
-        lastSentRotation = msg.rotation;
+        // Only process network messages if the object is kinematic
+        if (rb != null && rb.isKinematic)
+        {
+            // Parse the JSON message.
+            Message msg = message.FromJson<Message>();
+            // Update target values so the object interpolates smoothly.
+            targetPosition = msg.position;
+            targetRotation = msg.rotation;
+            // Also update last sent values so we don't immediately trigger another update.
+            lastSentPosition = msg.position;
+            lastSentRotation = msg.rotation;
+        }
     }
 
     // Structure for the sync message.
@@ -116,16 +122,14 @@ public class MyNetworkedObject : MonoBehaviour
         {
             rb.isKinematic = false;
             rb.useGravity = true;
+            // Set the velocity to zero to prevent any sudden movements
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
-        // Optionally, pause network sync briefly to let the object settle.
-        StartCoroutine(ResumeSyncAfterDelay(0.5f));
-    }
-
-    private IEnumerator ResumeSyncAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        // Reset the last sent values to avoid a sudden jump.
+        // Reset the network sync values to the current position
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
+        targetPosition = transform.position;
+        targetRotation = transform.rotation;
     }
 }
