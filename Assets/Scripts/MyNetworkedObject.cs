@@ -23,86 +23,120 @@ public class MyNetworkedObject : MonoBehaviour
     private Vector3 targetPosition;
     private Quaternion targetRotation;
 
-    // Flag to indicate that the object is grabbed locally.
-    private bool isGrabbed = false;
+    // Flags to control sync and physics.
+    private bool localGrabbed = false;   // True when this client is holding the object.
+    private bool remoteGrabbed = false;  // Set from network messages.
 
-    private void Start()
+    private Rigidbody rb;
+
+    void Start()
     {
-        // Register with the NetworkScene (ensure a NetworkScene exists in the scene).
+        // Register with the NetworkScene (make sure one exists in your scene).
         context = NetworkScene.Register(this);
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
         targetPosition = transform.position;
         targetRotation = transform.rotation;
+        rb = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    void Update()
     {
-        // Only send updates when the object isn't currently grabbed.
-        if (!isGrabbed)
+        // Only send updates if this client is not holding the object.
+        if (!localGrabbed)
         {
             if (Vector3.Distance(transform.position, lastSentPosition) > positionThreshold ||
                 Quaternion.Angle(transform.rotation, lastSentRotation) > rotationThreshold)
             {
                 lastSentPosition = transform.position;
                 lastSentRotation = transform.rotation;
-                // Create a message with the world position and rotation.
-                Message msg = new Message()
-                {
-                    position = transform.position,
-                    rotation = transform.rotation
-                };
-                context.SendJson(msg);
+                SendState();
             }
         }
 
-        // Smoothly interpolate the object toward the target position/rotation (from network updates).
+        // Smoothly interpolate the object's transform toward the target (from network messages).
         transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
+
+        // On remote clients, if the object is marked as grabbed, disable physics so gravity doesn't act.
+        if (rb != null)
+        {
+            if (remoteGrabbed)
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+            else if (!localGrabbed) // Only re-enable physics when not locally grabbed.
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+            }
+        }
     }
 
-    // Called when a network message is received.
+    void SendState()
+    {
+        StateMessage msg = new StateMessage()
+        {
+            position = transform.position,
+            rotation = transform.rotation,
+            grabbed = localGrabbed
+        };
+        context.SendJson(msg);
+    }
+
+    // This method is called by Ubiq when a network message is received.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Parse the JSON message.
-        Message msg = message.FromJson<Message>();
-        // Update target values so the object interpolates smoothly.
+        StateMessage msg = message.FromJson<StateMessage>();
         targetPosition = msg.position;
         targetRotation = msg.rotation;
-        // Also update last sent values so we don't immediately trigger another update.
+        remoteGrabbed = msg.grabbed;
+
+        // Update last sent values so we don't immediately trigger another update.
         lastSentPosition = msg.position;
         lastSentRotation = msg.rotation;
     }
 
-    // Structure for the sync message.
     [System.Serializable]
-    private struct Message
+    private struct StateMessage
     {
         public Vector3 position;
         public Quaternion rotation;
+        public bool grabbed;
     }
 
-    // These methods should be hooked up to XR Grab Interactable events.
-
+    // --- These methods should be hooked up to your XR Grab Interactable events. ---
     // Call this when the object is grabbed.
     public void OnSelectEntered()
     {
-        isGrabbed = true;
+        localGrabbed = true;
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
+        SendState(); // Broadcast that the object is now grabbed.
     }
 
     // Call this when the object is released.
     public void OnSelectExited()
     {
-        isGrabbed = false;
-        // Optionally, pause network sync briefly to let physics settle.
+        localGrabbed = false;
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+        }
+        // Optionally delay syncing to let the object settle.
         StartCoroutine(ResumeSyncAfterDelay(0.5f));
     }
 
     private IEnumerator ResumeSyncAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        // Reset the last sent values to avoid a sudden jump.
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
+        SendState();
     }
 }
