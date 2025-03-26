@@ -67,24 +67,27 @@ public class MyNetworkedObject : MonoBehaviour
                 };
                 context.SendJson(msg);
             }
-        }
 
-        // Always interpolate position to received network updates
-        transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
+            // Only interpolate position when grabbed
+            transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
+        }
     }
 
     // Called when a network message is received.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Always process network messages
-        Message msg = message.FromJson<Message>();
-        // Update target values so the object interpolates smoothly.
-        targetPosition = msg.position;
-        targetRotation = msg.rotation;
-        // Also update last sent values so we don't immediately trigger another update.
-        lastSentPosition = msg.position;
-        lastSentRotation = msg.rotation;
+        // Only process network messages if grabbed
+        if (isGrabbed)
+        {
+            Message msg = message.FromJson<Message>();
+            // Update target values so the object interpolates smoothly.
+            targetPosition = msg.position;
+            targetRotation = msg.rotation;
+            // Also update last sent values so we don't immediately trigger another update.
+            lastSentPosition = msg.position;
+            lastSentRotation = msg.rotation;
+        }
     }
 
     // Structure for the sync message.
@@ -117,15 +120,5 @@ public class MyNetworkedObject : MonoBehaviour
             rb.isKinematic = false;
             rb.useGravity = true;
         }
-        // Optionally, pause network sync briefly to let the object settle.
-        StartCoroutine(ResumeSyncAfterDelay(0.5f));
-    }
-
-    private IEnumerator ResumeSyncAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        // Reset the last sent values to avoid a sudden jump.
-        lastSentPosition = transform.position;
-        lastSentRotation = transform.rotation;
     }
 }
