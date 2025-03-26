@@ -39,18 +39,19 @@ public class MyNetworkedObject : MonoBehaviour
         targetPosition = transform.position;
         targetRotation = transform.rotation;
 
-        // If a Rigidbody is attached, set initial state as kinematic
+        // If a Rigidbody is attached, set initial physics properties
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = true;
-            rb.useGravity = false;
+            // Start with physics enabled and gravity on
+            rb.isKinematic = false;
+            rb.useGravity = true;
         }
     }
 
     private void Update()
     {
-        // Only send updates when the object is grabbed
+        // Only send updates when the object is grabbed locally.
         if (isGrabbed)
         {
             if (Vector3.Distance(transform.position, lastSentPosition) > positionThreshold ||
@@ -68,8 +69,8 @@ public class MyNetworkedObject : MonoBehaviour
             }
         }
 
-        // Only interpolate if the object is not grabbed
-        if (!isGrabbed)
+        // Only interpolate position when grabbed
+        if (isGrabbed)
         {
             transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
@@ -79,8 +80,8 @@ public class MyNetworkedObject : MonoBehaviour
     // Called when a network message is received.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Only process network messages if the object is not grabbed
-        if (!isGrabbed)
+        // Only process network messages if the object is grabbed
+        if (isGrabbed)
         {
             // Parse the JSON message.
             Message msg = message.FromJson<Message>();
@@ -109,8 +110,8 @@ public class MyNetworkedObject : MonoBehaviour
         isGrabbed = true;
         if (rb != null)
         {
-            rb.isKinematic = false;
-            rb.useGravity = false;  
+            rb.isKinematic = true;
+            rb.useGravity = false;
         }
     }
 
@@ -120,16 +121,18 @@ public class MyNetworkedObject : MonoBehaviour
         isGrabbed = false;
         if (rb != null)
         {
-            rb.isKinematic = true;
-            rb.useGravity = true; 
-            // Set the velocity to zero to prevent any sudden movements
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = false;
+            rb.useGravity = true;
         }
-        // Reset the network sync values to the current position
+        // Optionally, pause network sync briefly to let the object settle.
+        StartCoroutine(ResumeSyncAfterDelay(0.5f));
+    }
+
+    private IEnumerator ResumeSyncAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        // Reset the last sent values to avoid a sudden jump.
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
-        targetPosition = transform.position;
-        targetRotation = transform.rotation;
     }
 }
