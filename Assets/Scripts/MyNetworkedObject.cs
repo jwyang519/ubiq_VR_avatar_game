@@ -123,7 +123,7 @@ public class MyNetworkedObject : MonoBehaviour
             rb.isKinematic = true;
             rb.useGravity = true; 
             // Set the velocity to zero to prevent any sudden movements
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
         // Reset the network sync values to the current position
