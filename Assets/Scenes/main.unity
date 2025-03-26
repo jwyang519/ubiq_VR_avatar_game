@@ -54719,9 +54719,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4671ae1f6313d42b8afb72b5887ee78a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  positionThreshold: 0.1
+  positionThreshold: 0.05
   rotationThreshold: 1
-  interpolationFactor: 0.106
+  interpolationFactor: 0.1
 --- !u!33 &8022378874836673772
 MeshFilter:
   m_ObjectHideFlags: 0

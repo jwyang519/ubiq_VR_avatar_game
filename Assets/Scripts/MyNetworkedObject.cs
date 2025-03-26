@@ -12,9 +12,9 @@ public class MyNetworkedObject : MonoBehaviour
     [Tooltip("Only send rotation updates if the object has rotated more than this (in degrees).")]
     public float rotationThreshold = 1f;
 
-    [Tooltip("Interpolation factor for smoothing remote updates.")]
+    [Tooltip("Interpolation factor for smoothing remote updates (try a higher value like 0.3 for faster catch-up).")]
     [Range(0f, 1f)]
-    public float interpolationFactor = 0.1f;
+    public float interpolationFactor = 0.3f; // increased for faster convergence
 
     private Vector3 lastSentPosition;
     private Quaternion lastSentRotation;
@@ -26,19 +26,32 @@ public class MyNetworkedObject : MonoBehaviour
     // Flag to indicate that the object is grabbed locally.
     private bool isGrabbed = false;
 
+    private Rigidbody rb;
+
     private void Start()
     {
-        // Register with the NetworkScene (ensure a NetworkScene exists in the scene).
+        // Register with the NetworkScene (ensure one exists in the scene).
         context = NetworkScene.Register(this);
+
+        // Initialize positions and rotations
         lastSentPosition = transform.position;
         lastSentRotation = transform.rotation;
         targetPosition = transform.position;
         targetRotation = transform.rotation;
+
+        // If a Rigidbody is attached, disable physics on remote clients
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            // Make sure the object's motion is completely driven by network updates.
+            rb.isKinematic = true;
+            rb.useGravity = false;
+        }
     }
 
     private void Update()
     {
-        // Only send updates when the object isn't currently grabbed.
+        // Only send updates when the object isn't grabbed locally.
         if (!isGrabbed)
         {
             if (Vector3.Distance(transform.position, lastSentPosition) > positionThreshold ||
@@ -56,7 +69,7 @@ public class MyNetworkedObject : MonoBehaviour
             }
         }
 
-        // Smoothly interpolate the object toward the target position/rotation (from network updates).
+        // Smoothly interpolate the object toward the target values received from the network.
         transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
     }
@@ -94,7 +107,7 @@ public class MyNetworkedObject : MonoBehaviour
     public void OnSelectExited()
     {
         isGrabbed = false;
-        // Optionally, pause network sync briefly to let physics settle.
+        // Optionally, pause network sync briefly to let the object settle.
         StartCoroutine(ResumeSyncAfterDelay(0.5f));
     }
 
