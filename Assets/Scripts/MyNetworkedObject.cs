@@ -5,28 +5,28 @@ using Ubiq.Messaging;
 
 public class MyNetworkedObject : MonoBehaviour
 {
-    NetworkContext context;
-    Vector3 lastPosition;
-    Quaternion lastRotation;
+    private NetworkContext context;
+    private Vector3 lastPosition;
+    private Quaternion lastRotation;
 
     void Start()
     {
         context = NetworkScene.Register(this);
-        lastPosition = transform.localPosition;
-        lastRotation = transform.localRotation;
+        lastPosition = transform.position;
+        lastRotation = transform.rotation;
     }
 
     void Update()
     {
-        // Check if either position or rotation changed significantly
-        if (lastPosition != transform.localPosition || lastRotation != transform.localRotation)
+        // Check world position and rotation for changes
+        if (lastPosition != transform.position || lastRotation != transform.rotation)
         {
-            lastPosition = transform.localPosition;
-            lastRotation = transform.localRotation;
+            lastPosition = transform.position;
+            lastRotation = transform.rotation;
             context.SendJson(new Message()
             {
-                position = transform.localPosition,
-                rotation = transform.localRotation
+                position = transform.position,
+                rotation = transform.rotation
             });
         }
     }
@@ -40,8 +40,9 @@ public class MyNetworkedObject : MonoBehaviour
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
         var m = message.FromJson<Message>();
-        transform.localPosition = m.position;
-        transform.localRotation = m.rotation;
+        // Update world transform
+        transform.position = m.position;
+        transform.rotation = m.rotation;
         lastPosition = m.position;
         lastRotation = m.rotation;
     }
