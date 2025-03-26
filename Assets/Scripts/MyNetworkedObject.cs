@@ -69,29 +69,22 @@ public class MyNetworkedObject : MonoBehaviour
             }
         }
 
-        // Only interpolate position when grabbed
-        if (isGrabbed)
-        {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
-        }
+        // Always interpolate position to received network updates
+        transform.position = Vector3.Lerp(transform.position, targetPosition, interpolationFactor);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, interpolationFactor);
     }
 
     // Called when a network message is received.
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Only process network messages if the object is grabbed
-        if (isGrabbed)
-        {
-            // Parse the JSON message.
-            Message msg = message.FromJson<Message>();
-            // Update target values so the object interpolates smoothly.
-            targetPosition = msg.position;
-            targetRotation = msg.rotation;
-            // Also update last sent values so we don't immediately trigger another update.
-            lastSentPosition = msg.position;
-            lastSentRotation = msg.rotation;
-        }
+        // Always process network messages
+        Message msg = message.FromJson<Message>();
+        // Update target values so the object interpolates smoothly.
+        targetPosition = msg.position;
+        targetRotation = msg.rotation;
+        // Also update last sent values so we don't immediately trigger another update.
+        lastSentPosition = msg.position;
+        lastSentRotation = msg.rotation;
     }
 
     // Structure for the sync message.
