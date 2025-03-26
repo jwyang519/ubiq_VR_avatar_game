@@ -6,24 +6,27 @@ using Ubiq.Messaging;
 public class MyNetworkedObject : MonoBehaviour
 {
     NetworkContext context;
+    Vector3 lastPosition;
+    Quaternion lastRotation;
 
-    // Start is called before the first frame update
     void Start()
     {
         context = NetworkScene.Register(this);
+        lastPosition = transform.localPosition;
+        lastRotation = transform.localRotation;
     }
 
-    Vector3 lastPosition;
-
-    // Update is called once per frame
     void Update()
     {
-        if (lastPosition != transform.localPosition)
+        // Check if either position or rotation changed significantly
+        if (lastPosition != transform.localPosition || lastRotation != transform.localRotation)
         {
             lastPosition = transform.localPosition;
+            lastRotation = transform.localRotation;
             context.SendJson(new Message()
             {
-                position = transform.localPosition
+                position = transform.localPosition,
+                rotation = transform.localRotation
             });
         }
     }
@@ -31,17 +34,15 @@ public class MyNetworkedObject : MonoBehaviour
     private struct Message
     {
         public Vector3 position;
+        public Quaternion rotation;
     }
 
     public void ProcessMessage(ReferenceCountedSceneGraphMessage message)
     {
-        // Parse the message
         var m = message.FromJson<Message>();
-
-        // Use the message to update the Component
         transform.localPosition = m.position;
-
-        // Make sure the logic in Update doesn't trigger as a result of this message
-        lastPosition = transform.localPosition;
+        transform.localRotation = m.rotation;
+        lastPosition = m.position;
+        lastRotation = m.rotation;
     }
 }
