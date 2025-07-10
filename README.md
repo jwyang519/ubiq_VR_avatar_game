@@ -56,6 +56,19 @@ You're invited to a magical house party where you:
 - `AvatarControlUbiq` — Maps body + head movement from XR input
 
 ---
+## 🖼️ Gallery
+
+Here are a few in-game screenshots from *House of Echoes*:
+
+### 👕 Real-time Avatar Customization
+![Fitting Room – Single Player](Screenshots/AvatarSingle.png)
+
+### 🪄 Magical Transformations
+![Enchanted Object – Guitar](Screenshots/ObjectAvatar.png)
+![Wizard NPC](Screenshots/Wizard.png)
+
+### 🎉 Social Interactions in VR
+![Players at the Party](Screenshots/HumanAvatar.jpg)
 
 ## 👥 Credits
 
